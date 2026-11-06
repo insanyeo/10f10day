@@ -280,6 +280,8 @@ body.touch .lnote{left:520px;top:750px}
 body.touch #gear{right:auto;bottom:auto;left:calc(178px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));text-align:left;transform:scale(.68);transform-origin:0 0} /* 11/7: 시계 오른쪽으로(초상화와 겹쳤음) */
 body.touch .panel .box .btns{position:sticky;bottom:0;z-index:2;background:#0d0b0b;padding-block:8px}
 body.touch .panel{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tX{display:none}
+body.touch .tX{display:block;position:fixed;z-index:60;top:calc(10px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));width:52px;height:52px;border-radius:50%;border:2px solid #cdc9c2;background:#8a1414;color:#fff;font-size:24px;font-weight:700;line-height:1;padding:0}
 body.touch #vitals{transform:scale(.85);transform-origin:0 100%}
 body.touch #clock{transform:scale(.8);transform-origin:0 0}
 
@@ -351,7 +353,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver">v0.9.5 · 2026.11.07</div>
+    <div class="lver">v0.9.6 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -403,6 +405,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
 </div>
 
 <div id="invP" class="panel" hidden>
+  <button class="tX" data-x="1">✕</button>
   <div class="box">
     <div class="eyebrow">가방 · Tab으로 닫기</div>
     <div class="wbar"><span>무게</span><span class="big num" id="invW">0 / 12kg</span><i><b id="invWB"></b></i></div>
@@ -414,6 +417,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
 </div>
 
 <div id="craftP" class="panel" hidden>
+  <button class="tX" data-x="1">✕</button>
   <div class="box">
     <div class="eyebrow">작업대 · 1001호</div>
     <h2 id="crTitle">새총 제작</h2>
@@ -3638,7 +3642,7 @@ const JUNK_PER_MAT=5,FLASH_JUNK=15,FLASH_MAX=5;
 function craftHave(){return (P.inv.mat||0)+Math.floor((P.inv.junk||0)/JUNK_PER_MAT);}
 $('fbBtn').onclick=()=>{if((P.inv.flash||0)>=FLASH_MAX||(P.inv.junk||0)<FLASH_JUNK)return;P.inv.junk-=FLASH_JUNK;P.inv.flash=(P.inv.flash||0)+1;closeUI();advanceTime(10,'섬광탄 제작');toast('섬광탄 완성 ('+P.inv.flash+'/'+FLASH_MAX+') — G로 던지기');sfx.craft();};
 $('crBtn').onclick=()=>{const nx=P.tier+1<=(G.benchCap??3)?CFG.sling[P.tier+1]:null;if(!nx||craftHave()<nx.mats)return;let need=nx.mats;const um=Math.min(need,P.inv.mat||0);P.inv.mat=(P.inv.mat||0)-um;need-=um;P.inv.junk=(P.inv.junk||0)-need*JUNK_PER_MAT;P.tier++;closeUI();advanceTime(CFG.time.craft,nx.name+' 제작');toast(nx.name+' 완성');sfx.craft();};
-$('crClose').onclick=closeUI;$('invClose').onclick=closeUI;['invP','craftP'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target.id===id)closeUI();}));$('invMapBtn').onclick=()=>{toggleMap();if(sfx.uiSel)sfx.uiSel();};
+$('crClose').onclick=closeUI;$('invClose').onclick=closeUI;['invP','craftP'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target.id===id)closeUI();}));document.querySelectorAll('.tX').forEach(b=>{b.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();closeUI();},{passive:false});b.addEventListener('click',e=>{e.stopPropagation();closeUI();});});$('invMapBtn').onclick=()=>{toggleMap();if(sfx.uiSel)sfx.uiSel();};
 {const cp=$('credP');['pointerdown'].forEach(ev=>cp.addEventListener(ev,e=>{e.preventDefault();credDown();}));['pointerup','pointercancel','pointerleave'].forEach(ev=>cp.addEventListener(ev,()=>credUp()));}
 addEventListener('keydown',e=>{const c=$('credP');if(c&&!c.hidden){e.preventDefault();e.stopPropagation();if(e.code==='Escape'){closeCredits();return;}if(!e.repeat)credDown();}},true);addEventListener('keyup',e=>{const c=$('credP');if(c&&!c.hidden){e.preventDefault();e.stopPropagation();credUp();}},true);
 $('endCred').onclick=()=>openCredits();
