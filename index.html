@@ -417,7 +417,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.9 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.10 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -472,7 +472,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
   <button class="tX" data-x="1">✕</button>
   <div class="box">
     <div class="eyebrow">가방 · Tab으로 닫기</div>
-    <div class="wbar"><span>무게</span><span class="big num" id="invW">0 / 12kg</span><i><b id="invWB"></b></i></div>
+    <div class="wbar"><span>무게</span><span class="big num" id="invW">0 / 15kg</span><i><b id="invWB"></b></i></div>
     <div class="invList" id="invList"></div>
     <dl class="stat" id="invStat"></dl>
     <div id="invMapW" hidden><canvas id="invMap" width="544" height="608"></canvas><div class="mapLeg"><span><i class="lg vis"></i>다 뒤짐</span><span><i class="lg part"></i>덜 뒤짐</span><span><i class="lg unv"></i>안 가 봄</span><span><i class="lg key"></i>열쇠</span><span><i class="lg bench"></i>작업대</span><span><i class="lg me"></i>나</span></div></div>
@@ -528,7 +528,7 @@ const SND_SRC=/*SOUNDS*/{};
 const WIN_SRC=/*WIN*/{};
 /* ================= 설정 (테스트용 수치 포함) ================= */
 const CFG={
-  bagMax:12, startMin:8*60, deadlineMin:10*24*60,
+  bagMax:15, startMin:8*60, deadlineMin:10*24*60,
   time:{search:25,searchEmpty:8,crowbar:10,craft:60,eat:5,sleep:360,stairs:30},
   hungerPerMin:100/(48*60), thirstPerMin:100/(36*60), starveHpPerMin:5/60,
   player:{walk:2.6,run:4.5,crouch:1.3,r:.3,eye:1.6,eyeC:1.1},
@@ -837,7 +837,7 @@ function updateLights(dt){
     if(L.mode==='flicker'){L.ft-=dt;if(L.ft<=0){L.ft=Math.random()<.08?.06+Math.random()*.12:.05+Math.random()*.4;L.cur=Math.random()<.18?L.base*.08:L.base*(.85+Math.random()*.15);}}
     else if(L.mode==='dim')L.cur=(G.ev.dimOut>0?0:L.base*(Math.random()<.02?.3:1));
     else if(L.mode==='pulse')L.cur=L.base*(.75+.25*Math.sin(G.t*2.2));
-    if(L.fix)L.fix.material.color.setScalar(L.mode==='off'?.13:clamp(.15+L.cur/L.base*.75,.12,.91));}
+    if(L.fix){const k=L.mode==='off'?.13:clamp(.15+L.cur/L.base*.75,.12,.91);L.fix.material.color.copy(L.col).multiplyScalar(k);}}
   if(G.ev.dimOut>0)G.ev.dimOut-=dt;
   const[VPX,VPZ]=viewPt();const s=VL.filter(L=>L.cur>0).map(L=>[L,L.cur/(1+((L.x-VPX)**2+(L.z-VPZ)**2)*.08)]).sort((a,b)=>b[1]-a[1]);
   for(let i=0;i<POOL_N;i++){const pl=POOL[i],e=s[i];if(e){const L=e[0];pl.position.set(L.x,L.y,L.z);pl.color.copy(L.col);pl.intensity=L.cur;pl.distance=L.dist;}else pl.intensity=0;}
@@ -1124,11 +1124,13 @@ function buildFloor(){
   furn(null,'bin',13.0,10.25,13.4,10.65);furn(null,'box',5.0,ZN1-.4,5.45,ZN1-.1,{loot:'poor'});furn(null,'box',21.2,ZS0+.15,21.65,ZS0+.55,{loot:'poor'});furn(null,'box',6.7,13.8,7.1,14.25,{loot:'poor'});
   {const u=box(.04,.85,.04,phong(null,{color:0x18181a}),6.75,.43,18.4,0,false);u.rotation.z=-.16;}
   // 복도 천장등: 켜짐·꺼짐·깜빡·희미를 섞는다
+  const _cl0=VL.length;
   const pat=['on','on','flicker','off','dim','on','off','on','dim','flicker','on','off'];let pi=0;
   [2,6.3,10.8,15.4,20,24.2].forEach(x=>{vlight(x,CEIL-.12,(7.5+ZN1)/2,0xfff0e0,.72,pat[pi++%pat.length],6.5,true);vlight(x,CEIL-.12,(ZS0+ZS1)/2,0xfff0e0,.72,pat[pi++%pat.length],6.5,true);});
   [12.0,16.4].forEach(z=>{vlight((6.6+XW1)/2,CEIL-.12,z,0xfff0e0,.7,pat[pi++%pat.length],6.5,true);vlight((XE0+XE1)/2,CEIL-.12,z,0xfff0e0,.7,pat[pi++%pat.length],6.5,true);});
   vlight(13.1,CEIL-.12,11.0,0xfff0e0,.6,'flicker',6,true);
-  G.exitDoor=null;setupLowerFloor();setupScene();
+  G.corrL=VL.slice(_cl0);
+  G.exitDoor=null;floorTheme();setupLowerFloor();setupScene();
   flushBatches();distributeLoot();
   /* 11/6: 쓰레기실은 마실 것, TPS실은 의료품 2개 이상 보장(시간 안 들고 뒤짐) */
   {const add=(c,k,n)=>{const e=c.loot.find(l=>l.k===k);if(e)e.n+=n;else c.loot.push({k,n});};
@@ -2733,12 +2735,16 @@ function updateTraps(dt){for(const t of TRAPS){t.cool=Math.max(0,t.cool-dt);if(!
 /* ================= 층별 기억에 남는 장면(11/6) =================
    9층 물 찬 집 · 8층 벽에 피로 쓴 글씨 · 7층 벽 뚫린 두 세대 · 6층 촛불 추모방 · 5층 무너진 천장 */
 const SCENES={9:'flood',8:'writing',7:'hole',6:'candles',5:'rubble'};
+const STAIR_OUT=[14.4,ZS0+.9];
+function nearStairs(arr,f){return arr.slice().sort((a,b)=>{const pa=f(a),pb=f(b);return Math.hypot(pa[0]-STAIR_OUT[0],pa[1]-STAIR_OUT[1])-Math.hypot(pb[0]-STAIR_OUT[0],pb[1]-STAIR_OUT[1]);});}
+function uDoorPt(U){return U.door?[U.door.cx,U.door.cz]:uMap(U,U.W/2,0);}
+function openUnitDoor(U){const d=U.door;if(!d||d.type==='crowbar'||d.type==='survivor')return;d.open=true;d.ang=1;if(d.pivot&&d.a0!=null)d.pivot.rotation.y=d.a0+d.da;}
 function sceneUnits(r){return UNITS.filter(u=>typeof u.num==='number'&&UCFG[u.num]&&UCFG[u.num].door!=='survivor'&&!UCFG[u.num].boss&&u.num!==G.benchUnit);}
 function setupScene(){G.scene=null;const k=SCENES[G.floor];if(!k)return;const r=mulberry32(G.floor*131+9);
   try{({flood:sceneFlood,writing:sceneWriting,hole:sceneHole,candles:sceneCandles,rubble:sceneRubble})[k](r);}catch(e){console.warn('scene',k,e);G.scene=null;}}
 function inFlood(x,z){const S=G.scene;if(!S||S.kind!=='flood')return false;const[a,b,c,d]=S.rect;return x>a&&x<c&&z>b&&z<d;}
 /* 9층: 물 찬 집 — 발목까지 찬 검은 물. 걸으면 첨벙(소음 큼)·느려짐, 천장에서 물 떨어지는 소리 */
-function sceneFlood(r){const us=sceneUnits(r).filter(u=>UCFG[u.num].door!=='crowbar');const U=us[Math.floor(r()*us.length)];
+function sceneFlood(r){const us=sceneUnits(r).filter(u=>UCFG[u.num].door!=='crowbar');const U=nearStairs(us,uDoorPt)[0];openUnitDoor(U); /* 11/7: 계단 나오자마자 보이게 — 가장 가까운 집, 문 열어 둠 */
   const rc=uRect(U,.12,.22,U.W-.12,U.D-.27);const w=rc[2]-rc[0],d=rc[3]-rc[1];
   if(!TX.ripple){const[c,g]=cnv(256,256);const id=g.createImageData(256,256);const h=new Float32Array(256*256);for(let k=0;k<40;k++){const cx=Math.random()*256,cy=Math.random()*256,rr=10+Math.random()*50;for(let y=0;y<256;y++)for(let x=0;x<256;x++){let dx=Math.abs(x-cx),dy=Math.abs(y-cy);dx=Math.min(dx,256-dx);dy=Math.min(dy,256-dy);const d=Math.hypot(dx,dy);if(d<rr)h[y*256+x]+=Math.sin(d/rr*Math.PI*3)*(1-d/rr)*.5;}}
     for(let y=0;y<256;y++)for(let x=0;x<256;x++){const i=y*256+x,hx=h[y*256+(x+1)%256]-h[i],hy=h[((y+1)%256)*256+x]-h[i];id.data[i*4]=128+hx*90;id.data[i*4+1]=128+hy*90;id.data[i*4+2]=255;id.data[i*4+3]=255;}g.putImageData(id,0,0);
@@ -2770,7 +2776,8 @@ function cutWall(x0,z0,x1,z1,yTop){let cut=0;['wallU','wallC'].forEach(key=>{con
   BATCH[key]=keepG;});fillRect(x0,z0,x1,z1,i=>{if(grid[i]===1)grid[i]=0;});return cut;}
 function sceneHole(r){const pairs=[[1001,1002],[1002,1003],[1004,1005],[1005,1006],[1014,1013],[1013,1012],[1011,1010],[1007,1008],[1016,1015]];
   const byN=n=>UNITS.find(u=>u.num===n);const ok=pairs.filter(([a,b])=>[a,b].every(n=>UCFG[n]&&UCFG[n].door!=='survivor'&&!UCFG[n].boss));
-  for(let tries=0;tries<ok.length*2;tries++){const[a,b]=ok[Math.floor(r()*ok.length)];const A=byN(a),B=byN(b);
+  const okS=nearStairs(ok,([a,b])=>{const A=byN(a),B=byN(b);const pa=uDoorPt(A),pb=uDoorPt(B);return[(pa[0]+pb[0])/2,(pa[1]+pb[1])/2];});
+  for(let tries=0;tries<okS.length;tries++){const[a,b]=okS[tries];const A=byN(a),B=byN(b);
     // 두 세대 경계선: A의 u=0 또는 u=W 쪽 중 B에 붙은 쪽
     const sideU=[0,A.W].find(u=>{const[x,z]=uMap(A,u,A.D*.5);const[bx0,bz0,bx1,bz1]=uRect(B,0,0,B.W,B.D);return x>bx0-.15&&x<bx1+.15&&z>bz0-.15&&z<bz1+.15;});if(sideU==null)continue;
     for(const v0 of[A.D*.55,A.D*.45,A.D*.65,A.D*.35]){const v1=v0+1.0;const[x0,z0,x1,z1]=uRect(A,sideU-.12,v0,sideU+.12,v1);
@@ -2786,9 +2793,9 @@ function sceneHole(r){const pairs=[[1001,1002],[1002,1003],[1004,1005],[1005,100
       for(let k=0;k<6;k++){const t=k<3?0:1,[px,pz]=along(t);const h=.25+r()*.6,y=r()*1.3+h/2;const w_=.06+r()*.1;box(ax?w_:.24,h,ax?.24:w_,M.wallU,px+(ax?(t?-1:1)*w_/2:0),y,pz+(ax?0:(t?-1:1)*w_/2),0,false);}
       for(let k=0;k<12;k++){const s=k%2?1:-1;const px=cx+(ix-cx)*s*(.3+r()*1.2)+(r()-.5)*.8,pz=cz+(iz-cz)*s*(.3+r()*1.2)+(r()-.5)*.8;const q=.06+r()*.14;box(q,q*.7,q,k%3?M.wallU:M.conc,px,q*.35,pz,r()*6,true);}
       plane(1.0,.06,M.edge,cx,1.86,cz,ax?0:Math.PI/2);
-      G.scene={kind:'hole',a,b,cx,cz};return;}}}
+      openUnitDoor(A);openUnitDoor(B);G.scene={kind:'hole',a,b,cx,cz};return;}}}
 /* 6층: 촛불 추모방 — 누군가 사진·국화·촛불을 놓고 간 방. 따뜻한 불빛이 흔들림 */
-function sceneCandles(r){const us=sceneUnits(r).filter(u=>u.type!==24&&UCFG[u.num].door!=='crowbar');const pool=us.length?us:sceneUnits(r);const U=pool[Math.floor(r()*pool.length)];
+function sceneCandles(r){const us=sceneUnits(r).filter(u=>u.type!==24&&UCFG[u.num].door!=='crowbar');const pool=us.length?us:sceneUnits(r).filter(u=>UCFG[u.num].door!=='crowbar');const U=nearStairs(pool,uDoorPt)[0];openUnitDoor(U);
   const[tx,tz]=uMap(U,U.W*.5,U.D-.75);const[ix,iz]=uIn(U);const ry=Math.atan2(-ix,-iz);
   const tb=box(1.3,.38,.5,M.furn,tx,.19,tz,ry,true);tb.userData.keep=true;{const q=uRect(U,U.W*.5-.65,U.D-1.0,U.W*.5+.65,U.D-.5);fillRect(q[0],q[1],q[2],q[3],i=>{grid[i]=3;furnH[i]=.4;});}
   const fl=[],wax=phong(null,{color:0xd8d0c0}),flame=new THREE.MeshBasicMaterial({color:0xffb04a});
@@ -2802,17 +2809,52 @@ function sceneCandles(r){const us=sceneUnits(r).filter(u=>u.type!==24&&UCFG[u.nu
   const L1=vlight(tx-ix*.3,.7,tz-iz*.3,0xff8a38,1.5,'steady',6,false),L2=vlight(tx-ix*1.1,.3,tz-iz*1.1,0xff7a30,1.0,'steady',4,false);
   G.scene={kind:'candles',U,fl,L:[L1,L2],x:tx,z:tz};}
 /* 5층: 서쪽 복도 천장 붕괴 — 콘크리트 판·잔해로 복도 절반이 막힘(1m 틈), 끊어진 전선에서 불꽃 */
-function sceneRubble(r){const C=CORR.find(c=>c.name==='W');const zc=(C.z0+C.z1)/2+.5,x0=C.x0,x1=C.x1,wpass=1.0;
-  const bx0=x0,bx1=x1-wpass;fillRect(bx0,zc-.9,bx1,zc+.9,i=>{grid[i]=3;furnH[i]=1.4;});
-  const slab=(w,h,d,x,y,z,rx,rz)=>{const s=box(w,h,d,M.conc,x,y,z,0,true);s.rotation.x=rx;s.rotation.z=rz;return s;};
-  slab(bx1-bx0+.2,.14,1.3,(bx0+bx1)/2,.55,zc,.35,.18);slab(.9,.12,1.1,bx0+.5,.25,zc+.6,-.2,.4);slab(1.0,.12,.9,bx1-.45,.9,zc-.45,.6,-.3);
-  for(let k=0;k<26;k++){const q=.08+r()*.22;box(q,q*.8,q,k%4?M.conc:M.wallC,bx0+r()*(bx1-bx0),q*.4+r()*.25,zc-1.1+r()*2.2,r()*6,k<10);}
-  for(let k=0;k<5;k++){const p=box(.6+r()*.5,.02,.6,M.ceil,bx0+r()*(bx1-bx0),CEIL-.25-r()*.5,zc-.6+r()*1.2,r()*.6,false);p.rotation.x=(r()-.5)*1.1;p.rotation.z=(r()-.5)*.9;}
-  plane(bx1-bx0,1.6,new THREE.MeshBasicMaterial({color:0x020202}),(bx0+bx1)/2,CEIL-.004,zc,0,Math.PI/2);
-  const pipe=mesh(new THREE.CylinderGeometry(.04,.04,2.2,8),M.metal,(bx0+bx1)/2,CEIL-.35,zc+.3,0,false);pipe.rotation.z=1.2;
-  const cab=phong(null,{color:0x111111});const cx=bx1-.2,cz=zc+.1;const cb=mesh(new THREE.CylinderGeometry(.012,.012,.9,5),cab,cx,CEIL-.45,cz,0,false);cb.rotation.z=.25;cb.userData.keep=true;
+function sceneRubble(r){ /* 11/7: 남복도 서쪽(계단 문에서 서쪽으로 바로 보이는 자리)으로 옮김. 북쪽 절반을 막고 남쪽(세대 문 쪽) 1m 틈 */
+  const C=CORR.find(c=>c.name==='S'),bc=3.6,a0=C.z0,a1=C.z1-1.0; // a=복도 가로(z), b=복도 세로(x)
+  const W=(a,b)=>[b,a];const BX=(wA,h,dB,a,y,b,ry=0,cast=true)=>box(dB,h,wA,M.conc,b,y,a,ry,cast);
+  fillRect(bc-.9,a0,bc+.9,a1,i=>{grid[i]=3;furnH[i]=1.4;});
+  const slab=(wA,h,dB,a,y,b,rA,rB)=>{const s=BX(wA,h,dB,a,y,b);s.rotation.z=rA;s.rotation.x=rB;return s;};
+  slab(a1-a0+.2,.14,1.3,(a0+a1)/2,.55,bc,.35,.18);slab(.9,.12,1.1,a0+.5,.25,bc+.6,-.2,.4);slab(1.0,.12,.9,a1-.45,.9,bc-.45,.6,-.3);
+  for(let k=0;k<26;k++){const q=.08+r()*.22;const[x,z]=W(a0+r()*(a1-a0),bc-1.1+r()*2.2);box(q,q*.8,q,k%4?M.conc:M.wallC,x,q*.4+r()*.25,z,r()*6,k<10);}
+  for(let k=0;k<5;k++){const[x,z]=W(a0+r()*(a1-a0),bc-.6+r()*1.2);const p=box(.6,.02,.6+r()*.5,M.ceil,x,CEIL-.25-r()*.5,z,r()*.6,false);p.rotation.x=(r()-.5)*1.1;p.rotation.z=(r()-.5)*.9;}
+  plane(1.6,a1-a0,new THREE.MeshBasicMaterial({color:0x020202}),bc,CEIL-.004,(a0+a1)/2,0,Math.PI/2);
+  const pipe=mesh(new THREE.CylinderGeometry(.04,.04,2.2,8),M.metal,bc+.3,CEIL-.35,(a0+a1)/2,0,false);pipe.rotation.x=1.2;
+  const cab=phong(null,{color:0x111111});const cx=bc+.1,cz=a1-.2;const cb=mesh(new THREE.CylinderGeometry(.012,.012,.9,5),cab,cx,CEIL-.45,cz,0,false);cb.rotation.z=.25;cb.userData.keep=true;
   const sp=vlight(cx,CEIL-.9,cz,0x9ac0ff,.9,'steady',4,false);sp.cur=0;
-  G.scene={kind:'rubble',sx:cx-.1,sy:CEIL-.88,sz:cz,cb,sp,t:1.5};}
+  G.scene={kind:'rubble',sx:cx,sy:CEIL-.88,sz:cz-.1,cb,sp,t:1.5};}
+
+/* ================= 11/7 층별 분위기: 복도 조명 색 + 복도 바닥 흔적 ================= */
+const FTHEME={9:{col:0x9ab8d4,k:.8,decor:'water'},8:{col:0xff6050,k:.72,mode:'pulse',decor:'blood'},7:{col:0x58f088,k:.62,decor:'dust'},6:{col:0xffae68,k:.78,decor:'wax'},
+  5:{col:0xe8f0ff,k:1.0,mode:'flicker',decor:'rubble'},4:{col:0xffb848,k:.85,decor:'trash'},2:{col:0xd2d88e,k:.66,decor:'blood2'}};
+function corrSpots(n,r,pad){const cs=CORR.filter(c=>c.name!=='H'),out=[];let guard=0;
+  while(out.length<n&&guard++<n*40){const C=cs[Math.floor(r()*cs.length)];const x=C.x0+pad+r()*(C.x1-C.x0-2*pad),z=C.z0+pad+r()*(C.z1-C.z0-2*pad);
+    if(x<.6||x>BW-.6||blockedCircle(x,z,.18))continue;if(Math.hypot(x-STAIR_OUT[0],z-STAIR_OUT[1])<1.1)continue;out.push([x,z,C]);}return out;}
+function decalTex(key,fn){if(!TX[key]){const[c,g]=cnv(128,128);fn(g);TX[key]=new THREE.CanvasTexture(c);TX[key].userData={shared:1};}return TX[key];}
+function blobTex(g,rgb,a){const r=mulberry32(7);g.clearRect(0,0,128,128);for(let i=0;i<14;i++){const x=40+r()*48,y=40+r()*48,rr=10+r()*26;const gr=g.createRadialGradient(x,y,0,x,y,rr);gr.addColorStop(0,'rgba('+rgb+','+a+')');gr.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,rr,0,6.3);g.fill();}}
+function floorTheme(){const T=FTHEME[G.floor];if(!T)return;const r=mulberry32(G.floor*977+3);
+  (G.corrL||[]).forEach((L,i)=>{L.col=new THREE.Color(T.col);L.base*=T.k;if(L.mode!=='off'){if(T.mode==='flicker')L.mode=i%5===4?'dim':'flicker';else if(T.mode==='pulse'&&i%2)L.mode='pulse';L.cur=L.mode==='off'?0:L.base;}});
+  const DM={};const dmat=(k,o)=>DM[k]||(DM[k]=new THREE.MeshPhongMaterial(Object.assign({transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2},o)));
+  const flat=(m,w,d,x,z,y=.008)=>{const p=plane(w,d,m,x,y,z,0,-Math.PI/2);p.rotation.z=r()*6;p.renderOrder=1;return p;};
+  const K=T.decor;
+  if(K==='water'){const m=dmat('pud',{map:decalTex('pud',g=>blobTex(g,'14,18,22',.85)),color:0x8090a0,shininess:160,specular:0x9aa8b8});
+    corrSpots(26,r,.4).forEach(([x,z])=>{const s=.7+r()*1.6;flat(m,s,s*(.6+r()*.6),x,z);});
+    const st=dmat('wst',{map:decalTex('wst',g=>blobTex(g,'30,26,20',.5)),color:0x605850,shininess:5});corrSpots(10,r,.3).forEach(([x,z])=>flat(st,1.2,1.2,x,z,.006));}
+  if(K==='blood'||K==='blood2'){const n=K==='blood2'?16:11;corrSpots(n,r,.4).forEach(([x,z])=>bloodAt(x,z,.5+r()*.9));
+    const m=dmat('drag',{map:decalTex('drag',g=>{g.clearRect(0,0,128,128);for(let i=0;i<5;i++){g.fillStyle='rgba(70,4,4,'+(.35+i*.08)+')';g.fillRect(20+i*18,0,9,128);}}),color:0xffffff,shininess:30});
+    for(let t=0;t<(K==='blood2'?4:3);t++){const sp=corrSpots(1,r,.6)[0];if(!sp)continue;const[x,z,C]=sp;const alongX=(C.x1-C.x0)>(C.z1-C.z0);
+      for(let i=0;i<6;i++){const px=alongX?x+i*.55:x,pz=alongX?z:z+i*.55;if(blockedCircle(px,pz,.15))break;const p=plane(.5,.6,m,px,.009,pz,0,-Math.PI/2);p.rotation.z=alongX?Math.PI/2:0;p.renderOrder=1;}}}
+  if(K==='dust'||K==='rubble'){const m=dmat('dust',{map:decalTex('dust',g=>blobTex(g,'150,146,138',.35)),color:0xffffff,shininess:2});
+    corrSpots(K==='rubble'?14:10,r,.3).forEach(([x,z])=>{const s=.9+r()*1.4;flat(m,s,s,x,z,.007);});
+    corrSpots(K==='rubble'?40:24,r,.25).forEach(([x,z],k)=>{const q=.04+r()*.12;box(q,q*.7,q,k%3?M.conc:M.wallU,x,q*.35,z,r()*6,false);});
+    if(K==='rubble')corrSpots(9,r,.4).forEach(([x,z])=>{const p=box(.55+r()*.1,.015,.55+r()*.1,M.ceil,x,.03,z,r()*6,false);p.rotation.x=(r()-.5)*.3;p.rotation.z=(r()-.5)*.3;});}
+  if(K==='wax'){const wax=phong(null,{color:0xd8cfc0}),fl=new THREE.MeshBasicMaterial({color:0xffb04a}),pet=phong(null,{color:0xe8e2c8});
+    corrSpots(26,r,.15).forEach(([x,z,C])=>{const alongX=(C.x1-C.x0)>(C.z1-C.z0);const ex=alongX?x:(r()<.5?C.x0+.12:C.x1-.12),ez=alongX?(r()<.5?C.z0+.12:C.z1-.12):z;if(blockedCircle(ex,ez,.1))return;
+      const h=.04+r()*.1;mesh(new THREE.CylinderGeometry(.025,.028,h,7),wax,ex,h/2,ez,0,false);if(r()<.55)mesh(new THREE.ConeGeometry(.014,.045,5),fl,ex,h+.025,ez,0,false);
+      if(r()<.3)for(let j=0;j<3;j++)box(.035,.035,.035,pet,ex+(r()-.5)*.18,.02,ez+(r()-.5)*.18,r()*6,false);});}
+  if(K==='trash'){const can=phong(null,{color:0x6a6460,shininess:60,specular:0x444444}),bot=phong(null,{color:0x2e4a34,shininess:80,specular:0x556655,transparent:true,opacity:.85});
+    corrSpots(34,r,.25).forEach(([x,z],k)=>{const c=mesh(new THREE.CylinderGeometry(k%3?.033:.03,k%3?.033:.035,k%3?.12:.24,8),k%3?can:bot,x,.035,z,0,false);c.rotation.z=Math.PI/2;c.rotation.y=r()*6;});
+    const m=dmat('grime',{map:decalTex('grime',g=>blobTex(g,'40,32,22',.5)),color:0xffffff,shininess:3});corrSpots(12,r,.3).forEach(([x,z])=>flat(m,1.1,1.1,x,z,.006));}
+  G.ftheme=T;}
 function sceneTick(dt){const S=G.scene;if(!S)return;
   if(S.kind==='flood'){S.nm.offset.x=G.t*.012;S.nm.offset.y=Math.sin(G.t*.3)*.02;S.fl.forEach(o=>{o.m.position.y=o.y+Math.sin(G.t*1.3+o.ph)*.006;o.m.rotation.y+=dt*.03;});S.drip-=dt;if(S.drip<=0){S.drip=1.2+Math.random()*2.6;const[x,z]=uMap(S.U,.6+Math.random()*(S.U.W-1.2),1.5+Math.random()*(S.U.D-2.5));at(x,z,()=>{tone(1500+Math.random()*900,700,.07,.07,'sine');});}
     if(!S.tip&&inFlood(P.x,P.z)){S.tip=1;toast('물이 발목까지 찼다 — 걸으면 첨벙거린다(소리 큼)',true);}}
