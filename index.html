@@ -278,6 +278,8 @@ body.touch #prog{top:68%}
 body.touch .lsound{left:520px;top:790px;bottom:auto;font-size:26px}
 body.touch .lnote{left:520px;top:750px}
 body.touch #gear{right:auto;bottom:auto;left:calc(178px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));text-align:left;transform:scale(.68);transform-origin:0 0} /* 11/7: 시계 오른쪽으로(초상화와 겹쳤음) */
+body.touch .panel .box .btns{position:sticky;bottom:0;z-index:2;background:#0d0b0b;padding-block:8px}
+body.touch .panel{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 body.touch #vitals{transform:scale(.85);transform-origin:0 100%}
 body.touch #clock{transform:scale(.8);transform-origin:0 0}
 
@@ -349,7 +351,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver">v0.9.4 · 2026.11.07</div>
+    <div class="lver">v0.9.5 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -2481,7 +2483,7 @@ function setupTouch(){if(!TOUCH)return;document.body.classList.add('touch');try{
   addEventListener('touchmove',e=>{if(G.state!=='play')return;for(const t of e.changedTouches){
     if(mv&&t.identifier===mv.id){let dx=t.clientX-mv.x,dy=t.clientY-mv.y;const d=Math.hypot(dx,dy);TMV.run=d>R*1.05;if(d>R){dx*=R/d;dy*=R/d;}TMV.x=dx/R;TMV.y=dy/R;kn.style.transform='translate('+dx+'px,'+dy+'px)';st.classList.toggle('run',TMV.run);}
     const L=look.get(t.identifier);if(L){const dx=t.clientX-L.x,dy=t.clientY-L.y;L.x=t.clientX;L.y=t.clientY;if(!G.paused)lookBy(dx,dy,.0042*(P.drawing?.6:1));}}
-    if(e.cancelable)e.preventDefault();},{passive:false});
+    if(e.cancelable&&!(e.target&&e.target.closest&&e.target.closest('.panel')))e.preventDefault();},{passive:false});
   const end=e=>{for(const t of e.changedTouches){if(mv&&t.identifier===mv.id){mv=null;TMV.x=TMV.y=0;TMV.run=false;st.style.display='none';st.classList.remove('run');}
     look.delete(t.identifier);
     if(fire.dataset.id==String(t.identifier)){fire.dataset.id='';fire.classList.remove('on');if(G.state==='play'&&!G.paused)release();}
@@ -3636,7 +3638,7 @@ const JUNK_PER_MAT=5,FLASH_JUNK=15,FLASH_MAX=5;
 function craftHave(){return (P.inv.mat||0)+Math.floor((P.inv.junk||0)/JUNK_PER_MAT);}
 $('fbBtn').onclick=()=>{if((P.inv.flash||0)>=FLASH_MAX||(P.inv.junk||0)<FLASH_JUNK)return;P.inv.junk-=FLASH_JUNK;P.inv.flash=(P.inv.flash||0)+1;closeUI();advanceTime(10,'섬광탄 제작');toast('섬광탄 완성 ('+P.inv.flash+'/'+FLASH_MAX+') — G로 던지기');sfx.craft();};
 $('crBtn').onclick=()=>{const nx=P.tier+1<=(G.benchCap??3)?CFG.sling[P.tier+1]:null;if(!nx||craftHave()<nx.mats)return;let need=nx.mats;const um=Math.min(need,P.inv.mat||0);P.inv.mat=(P.inv.mat||0)-um;need-=um;P.inv.junk=(P.inv.junk||0)-need*JUNK_PER_MAT;P.tier++;closeUI();advanceTime(CFG.time.craft,nx.name+' 제작');toast(nx.name+' 완성');sfx.craft();};
-$('crClose').onclick=closeUI;$('invClose').onclick=closeUI;$('invMapBtn').onclick=()=>{toggleMap();if(sfx.uiSel)sfx.uiSel();};
+$('crClose').onclick=closeUI;$('invClose').onclick=closeUI;['invP','craftP'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target.id===id)closeUI();}));$('invMapBtn').onclick=()=>{toggleMap();if(sfx.uiSel)sfx.uiSel();};
 {const cp=$('credP');['pointerdown'].forEach(ev=>cp.addEventListener(ev,e=>{e.preventDefault();credDown();}));['pointerup','pointercancel','pointerleave'].forEach(ev=>cp.addEventListener(ev,()=>credUp()));}
 addEventListener('keydown',e=>{const c=$('credP');if(c&&!c.hidden){e.preventDefault();e.stopPropagation();if(e.code==='Escape'){closeCredits();return;}if(!e.repeat)credDown();}},true);addEventListener('keyup',e=>{const c=$('credP');if(c&&!c.hidden){e.preventDefault();e.stopPropagation();credUp();}},true);
 $('endCred').onclick=()=>openCredits();
