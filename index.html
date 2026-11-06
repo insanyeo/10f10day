@@ -275,6 +275,8 @@ button:focus-visible{outline:2px solid var(--blood-hi);outline-offset:2px}
 .tX{border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 body.touch #invP,body.touch #craftP{padding-block:8px}
 body.touch .panel .box .btns{bottom:-8px!important;background:rgba(22,17,17,.97)!important;border-radius:12px;padding:8px;margin-inline:-8px;box-shadow:0 -10px 20px rgba(10,7,7,.7)}
+body.peeping #clock,body.peeping #gear,body.peeping #vitals,body.peeping #touchUI .tb:not(#tHide),body.peeping #tCrouch{opacity:0!important;pointer-events:none}
+body.peeping #prompt{top:auto!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;opacity:.75}
 @media (prefers-reduced-motion:reduce){#clock,#gear,#vitals .bar{transition:none}.bar.low b{animation:none}.toast{animation:none}}
 .big{font-family:var(--f-num);font-size:22px}
 @media (prefers-reduced-motion:reduce){h1 .tick{animation:none}.toast{animation:none}#hurt{transition:none}}
@@ -415,7 +417,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.8 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.9 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -580,7 +582,7 @@ const postMat=new THREE.ShaderMaterial({
   vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
   fragmentShader:`uniform sampler2D t;uniform float time;uniform vec2 res;uniform float hurt;uniform float gain;uniform float peep;varying vec2 vUv;
   float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
-  void main(){vec2 px=1./res;vec2 uv=vUv;float ca=.55*px.x;float pm=1.;if(peep>.5){vec2 dd=vUv-.5;float r=length(dd*vec2(res.x/res.y,1.));uv=.5+dd*(.42+1.9*r*r);pm=smoothstep(.47,.43,r)*(1.-r*r*1.6);ca*=1.+r*5.;}
+  void main(){vec2 px=1./res;vec2 uv=vUv;float ca=.55*px.x;float pm=1.;if(peep>.5){vec2 dd=vUv-.5;float r=length(dd*vec2(res.x/res.y,1.));uv=.5+dd*(.42+1.9*r*r);pm=smoothstep(.47,.43,r)*(1.-r*r*1.6)*1.45;ca*=1.+r*5.;}
     vec3 c=vec3(texture2D(t,uv+vec2(ca,0.)).r,texture2D(t,uv).g,texture2D(t,uv-vec2(ca,0.)).b);
     c*=gain;float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,.74);c=pow(max(c,0.),vec3(1.06));c+=vec3(.016,.002,.0)*(1.-l);
     vec2 d=uv-.5;c*=1.-dot(d,d)*1.15;vec2 g=floor(uv*res);
@@ -2256,7 +2258,7 @@ function peepDoor(){if(P.hide||P.peep||P.dead||G.state!=='play')return null;cons
   for(const d of DOORS){if(d.dk!=='unit'||d.open||d.type==='survivor')continue;const rx=P.x-d.cx,rz=P.z-d.cz,inn=rx*d.nx+rz*d.nz,lat=Math.abs(rx*d.tx+rz*d.tz);
     if(inn<.12||inn>bd||lat>.55)continue;if(fx*-d.nx+fz*-d.nz<.45)continue;bd=inn;best=d;}return best;}
 function enterPeep(d){cancelDraw();const y0=Math.atan2(d.nx,d.nz);P.peep={d,y0,lamp:P.lamp,kn:1.5};P.lamp=false;P.yaw=y0;P.pitch=-.05;
-  try{fx('ui_select',{gain:.5});}catch(e){}if(!G.peepTip){G.peepTip=1;toast('문구멍으로 복도를 본다 · 마우스로 살짝 둘러보기');}}
+  try{fx('ui_select',{gain:.5});}catch(e){}if(!G.peepTip){G.peepTip=1;toast(TOUCH?'문구멍으로 복도를 본다 · 화면을 밀어 살짝 둘러보기':'문구멍으로 복도를 본다 · 마우스로 살짝 둘러보기');}}
 function exitPeep(){const p=P.peep;if(!p)return;P.peep=null;P.lamp=p.lamp;P.yaw=p.y0;P.pitch=0;}
 function peepTick(dt){const p=P.peep,d=p.d;if(d.open){exitPeep();return;}const ox=d.cx-d.nx*.6,oz=d.cz-d.nz*.6;p.kn-=dt;
   if(p.kn<=0&&creatures.some(c=>!c.dead&&c.type!=='raider'&&!c.gor&&Math.hypot(c.x-ox,c.z-oz)<1.0)){p.kn=3+Math.random()*2;d.shake=.35;vo('startle',12);if(!doorSnd(d,'knock'))at(d.cx,d.cz,()=>{nz(.12,180,1.4,.5,0,'lowpass');});}}
@@ -2406,7 +2408,7 @@ function currentTarget(){
   for(const L of [INTER,DOORS])for(const it of L){{const ox=it.x??it.cx,oz=it.z??it.cz;if(ox!=null&&(Math.abs(ox-P.x)>3.5||Math.abs(oz-P.z)>3.5))continue;} /* 11/6 최적화: 먼 것은 targetPoint(배열 생성)·시야 검사 전에 거름 */
     const[ix,iz]=targetPoint(it);const dx=ix-P.x,dz=iz-P.z,d=Math.hypot(dx,dz);const r=it.kind==='door'?1.5:(it.r||1.6);if(d>r)continue;
     const dot=d<.25?1:(dx*fx+dz*fz)/d;if(dot<.7)continue;
-    const back=Math.max(0,d-.45);if(back>.05&&!los(P.x,P.z,P.x+dx/d*back,P.z+dz/d*back))continue;
+    const back=Math.max(0,d-.18); /* 11/7: .45면 벽 너머(침대 옆→욕실장) 상자가 잡혔음 */if(back>.05&&!los(P.x,P.z,P.x+dx/d*back,P.z+dz/d*back))continue;
     const sc=dot-d*.05+(it.kind==='pick'?.05:0)+(it.kind==='note'||it.kind==='tip'||it.kind==='slingStart'||it.kind==='shoes'?.2:0);if(sc>bs){bs=sc;best=it;}}
   return best;
 }
@@ -3196,7 +3198,7 @@ function render(){
   camera.position.set(P.x,P.eye+(P.moving&&OPT.bob?Math.abs(Math.sin(P.bob))*.022:0),P.z);
   camera.rotation.y=P.yaw+(hold?(Math.random()-.5)*hold:0);camera.rotation.x=P.pitch+P.kick*.02+(hold?(Math.random()-.5)*hold:0);
   camera.rotation.z=P.dead?.45:0;if(P.dead)camera.position.y=.35;
-  if(P.peep){const d=P.peep.d;camera.position.set(d.cx-d.nx*.12,1.5,d.cz-d.nz*.12);}postMat.uniforms.peep.value=P.peep?1:0;
+  if(P.peep){const d=P.peep.d;camera.position.set(d.cx-d.nx*.12,1.5,d.cz-d.nz*.12);}postMat.uniforms.peep.value=P.peep?1:0;document.body.classList.toggle('peeping',!!P.peep);
   {const fv=P.peep?118:P.fov;if(Math.abs(camera.fov-fv)>.01){camera.fov=fv;camera.updateProjectionMatrix();handCam.fov=P.fov;handCam.updateProjectionMatrix();layoutHands();}}
   const fwd=new THREE.Vector3(0,0,-1).applyEuler(camera.rotation);
   lamp.position.set(P.x+fwd.x*.05,camera.position.y+.08,P.z+fwd.z*.05);lamp.target.position.copy(camera.position).addScaledVector(fwd,5);lamp.intensity=P.lamp&&!P.hide&&G.state==='play'?1.55:0;renderer.shadowMap.autoUpdate=lamp.intensity>0; // 랜턴 꺼지면 그림자 지도 안 그림(셰이더는 그대로라 재컴파일 없음)
