@@ -214,6 +214,68 @@ button:focus-visible{outline:2px solid var(--blood-hi);outline-offset:2px}
 #hideUI{position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:4;display:grid;gap:8px;justify-items:center;color:#a89a94;font-size:12px;letter-spacing:.04em}
 #hideBr{display:flex;align-items:center;gap:8px}#hideBr i{display:block;width:160px;height:3px;background:#2a1c1c}#hideBr b{display:block;height:100%;width:100%;background:#b8aaa2;transition:width .1s}
 #hideBr.low b{background:#c0302a}#hideK kbd{border:1px solid #5a4a46;padding:1px 5px;border-radius:3px;font:inherit;color:#d8ccc6}
+
+/* ===== UI v2 (11/7) — 필요할 때만 보이는 HUD + 유리 패널 ===== */
+:root{--g-bg:rgba(14,11,11,.58);--g-line:rgba(255,240,235,.09);--g-hi:rgba(255,255,255,.04)}
+#hud{text-shadow:0 1px 2px rgba(0,0,0,.9)}
+#clock,#gear,#vitals .bar,#vitals #pfName{transition:opacity .6s ease,transform .6s ease}
+#clock.dim,#gear.dim{opacity:0;transform:translateY(-4px)}
+#gear.dim{transform:translateY(4px)}
+#vitals.dim .bar{opacity:0}
+#vitals.dim #pfName{opacity:0}
+#vitals.dim #pf{opacity:.7}
+#pf{transition:opacity .6s}
+#day{font-family:var(--f-body);font-weight:700;font-size:13px;letter-spacing:.16em;color:rgba(232,225,214,.75)}
+#time{font-size:30px;line-height:1}
+#left{font-size:11px;letter-spacing:.06em;color:rgba(200,190,182,.55)}
+#vitals{gap:6px;width:190px}
+#pf{gap:9px;margin-bottom:2px}
+#pfFrame{width:42px;height:42px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,240,235,.16),0 4px 14px rgba(0,0,0,.5)}
+#pfFrame img{width:42px;height:42px}
+#pfName{font-family:var(--f-body);font-weight:700;font-size:11px;letter-spacing:.22em;color:rgba(232,225,214,.7)}
+.bar{grid-template-columns:28px 1fr 26px;gap:8px;font-size:10.5px;letter-spacing:.1em;color:rgba(200,190,182,.6)}
+.bar i{height:3px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar b{border-radius:3px;background:rgba(232,225,214,.85);transition:width .35s ease}
+.bar.hp b{background:linear-gradient(90deg,#8e1018,#e0303c)}
+.bar.low b{background:var(--blood-hi);animation:lowp 1.1s ease-in-out infinite}
+@keyframes lowp{50%{opacity:.45}}
+.bar em{font-size:15px;color:rgba(232,225,214,.85)}
+#gear{gap:1px}
+#wName,#wt,#cb,#noise,#lampI,#keyI{font-size:11px;letter-spacing:.04em}
+#wName{color:rgba(232,225,214,.6);letter-spacing:.12em}
+#ammoN{font-size:34px}
+#ammoT{font-size:11px;letter-spacing:.1em;color:rgba(200,190,182,.6)}
+/* 안내·자막·알림 — 작은 유리 알약 */
+#prompt{font-size:13px;padding:5px 12px 5px 6px;border-radius:999px;background:var(--g-bg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px var(--g-line);text-shadow:none}
+#prompt kbd{font-size:15px;border-radius:999px;padding:0 8px;margin-right:8px;background:rgba(240,234,224,.92)}
+#sub{font-size:15px;padding:6px 14px;border-radius:10px;background:var(--g-bg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px var(--g-line);text-shadow:none}
+#toasts{gap:6px}
+.toast{font-size:12px;padding:6px 12px 6px 10px;border-radius:8px;background:var(--g-bg);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px var(--g-line),inset 2px 0 0 rgba(232,225,214,.5);text-shadow:none;animation:tin2 .25s ease-out}
+.toast.red{box-shadow:inset 0 0 0 1px rgba(255,60,70,.18),inset 2px 0 0 var(--blood-hi)}
+@keyframes tin2{from{opacity:0;transform:translateX(8px)}}
+#mono{border-radius:12px;background:rgba(12,9,9,.62);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--g-line),0 8px 30px rgba(0,0,0,.35);text-shadow:none}
+#monoF{border-radius:8px;overflow:hidden}
+#monoN{font-family:var(--f-body);font-weight:700;font-size:10.5px;letter-spacing:.22em}
+#prog i,#prog b{border-radius:3px}
+/* 가방·작업대·일시정지·확인 창 — 유리 카드 */
+#invP,#craftP,#pauseP,#askP{background:rgba(6,4,4,.5);-webkit-backdrop-filter:blur(14px) saturate(.8);backdrop-filter:blur(14px) saturate(.8)}
+#invP .box,#craftP .box,#pauseP .box,#askP .box{background:linear-gradient(180deg,rgba(26,20,20,.82),rgba(14,11,11,.86));border-radius:16px;padding:22px 22px 18px;box-shadow:inset 0 0 0 1px var(--g-line),0 20px 60px rgba(0,0,0,.55);gap:14px}
+#invP .eyebrow,#craftP .eyebrow,#pauseP .eyebrow,#askP .eyebrow{font-size:11px;letter-spacing:.22em;color:rgba(200,190,182,.55)}
+#invP button,#craftP button,#pauseP button,#askP button{border-radius:9px;font-size:13px;padding:8px 14px;transition:background .15s,box-shadow .15s,transform .1s}
+#invP button:active,#craftP button:active,#pauseP button:active,#askP button:active{transform:scale(.97)}
+#invP button.ghost,#craftP button.ghost,#pauseP button.ghost,#askP button.ghost{background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,240,235,.14)}
+#invP button.ghost:hover,#craftP button.ghost:hover,#pauseP button.ghost:hover,#askP button.ghost:hover{background:rgba(255,255,255,.09)}
+#invP .row{border-radius:10px;padding:7px 8px 7px 10px;background:rgba(255,255,255,.035);transition:background .15s}
+#invP .row:hover{background:rgba(255,255,255,.07)}
+#invP .row button{border-radius:7px;padding:5px 10px;font-size:12px}
+#invP .invList{gap:4px}
+.wbar i{height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.wbar b{border-radius:4px}
+#invP .stat,#craftP .stat{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03)}
+.tX{border-radius:50%!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.touch #invP,body.touch #craftP{padding-block:8px}
+body.touch .panel .box .btns{bottom:-8px!important;background:rgba(22,17,17,.97)!important;border-radius:12px;padding:8px;margin-inline:-8px;box-shadow:0 -10px 20px rgba(10,7,7,.7)}
+@media (prefers-reduced-motion:reduce){#clock,#gear,#vitals .bar{transition:none}.bar.low b{animation:none}.toast{animation:none}}
 .big{font-family:var(--f-num);font-size:22px}
 @media (prefers-reduced-motion:reduce){h1 .tick{animation:none}.toast{animation:none}#hurt{transition:none}}
 .opts{display:grid;grid-template-columns:auto 1fr auto;gap:8px 14px;align-items:center;margin-top:14px;max-width:360px;font-size:13px;color:var(--ash)}.opts input[type=range]{accent-color:var(--blood);width:100%}.opts label{grid-column:1}.opts input[type=range],.opts select{grid-column:2}.opts em{grid-column:3;min-width:3.2em;text-align:right}.opts em{font-style:normal;color:#e0d4cc;font-size:12px}.opts select{background:#1a1414;color:#e0d4cc;border:1px solid #4a3a36;padding:4px;font:inherit}.opts .chk{grid-column:1 / 3;display:flex;gap:8px;align-items:center}.opts .chk input{accent-color:var(--blood)}
@@ -353,7 +415,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.7 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.8 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -3655,7 +3717,19 @@ $('resumeBtn').onclick=()=>lockPointer();
 $('pauseP').onclick=e=>{if(e.target.id!=='resumeBtn'&&e.target.id!=='quitBtn')lockPointer();};
 const hudCache={};
 function setT(id,v){if(hudCache[id]!==v){hudCache[id]=v;$(id).textContent=v;}}
+const HV={k:{},t:{}};
+function hudFlag(id,sec){HV.t[id]=Math.max(HV.t[id]||0,performance.now()+sec*1000);}
+function hudAuto(){const n=performance.now(),inv=P.inv||{};
+  const chk=(id,key,sec)=>{if(HV.k[id]!==undefined&&HV.k[id]!==key)hudFlag(id,sec);HV.k[id]=key;};
+  chk('floor',G.floor,0);if(HV.fl!==G.floor){HV.fl=G.floor;['vitals','gear','clock'].forEach(i=>hudFlag(i,6));}
+  chk('vitals',[Math.round(P.hp),Math.round(P.hunger/5),Math.round(P.thirst/5)].join(),4);
+  chk('gear',[P.hasSling,P.tier,P.ammoType,inv[P.ammoType]|0,(P.crowbars||[]).join('.'),inv.flash|0,!!G.hasKey,P.lamp].join(),4);
+  chk('clock',[G.day,Math.floor(G.min/30)].join(),4);
+  const keep={vitals:P.hp<35||P.hunger<25||P.thirst<25||(G.hurt||0)>.3,gear:!!P.drawing||(inv[P.ammoType]|0)<5||!!P.crouch||(G.noiseLv||0)>5,clock:CFG.deadlineMin-G.min<1440};
+  for(const id of ['vitals','gear','clock']){const e=$(id);if(e)e.classList.toggle('dim',!(keep[id]||n<(HV.t[id]||0)));}
+}
 function updateHUD(){
+  try{hudAuto();}catch(e){}
   setT('day',G.floor+'층 · '+G.day+'일차');setT('time',fmtClock(G.min));
   const left=CFG.deadlineMin-G.min,ld=Math.floor(left/1440),lh=Math.floor(left%1440/60);setT('left','남은 시간 '+ld+'일 '+lh+'시간');$('left').classList.toggle('warn',ld<2);
   [['Hp',P.hp],['Hu',P.hunger],['Th',P.thirst]].forEach(([k,v])=>{$('b'+k).style.width=clamp(v,0,100)+'%';setT('v'+k,String(Math.round(v)));$('r'+k).classList.toggle('low',v<25);});
