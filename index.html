@@ -419,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.19 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.20 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1228,7 +1228,7 @@ function spawnCreature(x,z,state,face=Math.random()*6.28,type='shambler'){
 /* ================= 8층 보스: 큰 머리(11/5 사용자 친구 얼굴, Tripo 3면 → bhg/mk 스크립트) =================
    몸 없이 머리 하나가 통통 튀어 다닌다. 느리고 체력이 높음. 멀리선 침 뱉기(맞으면 몸이 무거워짐), 가까우면 박치기 돌진.
    문·좁은 곳은 말랑하게 찌그러져 통과(벽 뚫림 방지). 얼굴(눈·코·입) = 머리 판정, 나머지 = 몸통 판정 */
-const BH={hp:800,scale:1.95,hop:.62,ground:.26,hopH:.42,hopDist:.95,spitR:[3.2,13],spitCd:2.8,spitSpd:9.5,spitDmg:8,slowT:3,slowK:.55,
+const BH={hp:800,scale:1.95,hop:.44,ground:.19,hopH:.42,hopDist:1.33, /* 11/7 사용자: 이속 2배(평균 1.08→2.1m/s) */spitR:[3.2,13],spitCd:2.8,spitSpd:9.5,spitDmg:8,slowT:3,slowK:.55,
   butR:3.0,butWind:.7,butSpd:7.5,butT:.55,butDmg:28,butCd:3.6,dazeT:1.6,atkCd:2.2};
 const SPITS=[];let BHGEO=null,BHMAT=null,SPIT_G=null,SPIT_M=null,SPLAT_M=null;
 function bhGeo(){if(BHGEO||!ASSET.bhGeo)return BHGEO;const m=ASSET.bhMeta,nv=m.nv,ni=m.ni;let u8;const b64=ASSET.bhGeo;if(b64 instanceof ArrayBuffer)u8=new Uint8Array(b64.slice(0));else{const bs=atob(b64);u8=new Uint8Array(bs.length);for(let i=0;i<bs.length;i++)u8[i]=bs.charCodeAt(i);}
@@ -1348,7 +1348,7 @@ function bigZone(c,x,y,z){if(c.dead)return null;const p=new THREE.Vector3(x,y,z)
 /* ================= 4층 보스: 고릴라(사용자 11/5, Tripo GLB → gor/) =================
    관리실(TPS)에 웅크려 있다가 문이 열려 김수민이 보이면 깨어난다. 걷지 않는다:
    1.5초 차징 → 최대 5.5m 도약 → 쾅 내려찍기(반경 2.5m·35·밀쳐냄) → 2초 숨 고르기(이때 맞히면 1.5배) → 반복. 죽으면 계단 열쇠 */
-const GA={hp:1400,scale:.85,charge:.75,leapMax:5.5,leapT:.9,slamR:2.5,slamDmg:35,rest:1,restMul:1.5,wake:7.5,r:.38};
+const GA={hp:4200, /* 11/7 사용자: 체력 3배 */scale:.85,charge:.75,leapMax:5.5,leapT:.9,slamR:2.5,slamDmg:35,rest:1,restMul:1.5,wake:7.5,r:.38};
 let GAGEO=null,GAMAT=null;
 function gaGeo(){if(GAGEO||!ASSET.gaGeo)return GAGEO;const m=ASSET.gaMeta,nv=m.nv,ni=m.ni;let u8;const b64=ASSET.gaGeo;if(b64 instanceof ArrayBuffer)u8=new Uint8Array(b64.slice(0));else{const bs=atob(b64);u8=new Uint8Array(bs.length);for(let i=0;i<bs.length;i++)u8[i]=bs.charCodeAt(i);}
   const B=u8.buffer;let o=0;const pos=new Float32Array(B,o,nv*3);o+=nv*12;const nq=new Int8Array(B,o,nv*3);o+=nv*3;o+=(4-o%4)%4;const uv=new Uint16Array(B,o,nv*2);o+=nv*4;const idx=new Uint16Array(B.slice(o,o+ni*2));
@@ -1683,13 +1683,13 @@ function canSee(c){
   let range=P.lamp?12:4.2;if(P.crouch)range*=.6;range+=lightAt(P.x,P.z)[0]*2.5;return d<range;
 }
 // 듣는 놈이 플레이어를 '느끼는' 거리: 움직이면 더 멀리서 안다, 웅크리고 가만히 있으면 거의 못 안다
-function listenerSense(c){if(P.dead||P.hide)return false;const d=Math.hypot(P.x-c.x,P.z-c.z);const r=(P.crouch?(P.moving?.75:.45):(P.moving?1.8:1.1))*DK().lsTouch;return d<r;}
+function listenerSense(c){if(P.dead||P.hide)return false;const d=Math.hypot(P.x-c.x,P.z-c.z);let r=(P.crouch?(P.moving?.75:.45):(P.moving?1.8:1.1))*DK().lsTouch;if(P.moving)r=Math.max(r,2*DK().lsTouch); /* 11/7 사용자: 2m 안에서 조금이라도 움직이면(웅크려도) 알아챔 */return d<r;}
 const PLAYER_NOISE={trap:1,step:1,shot:1,search:1,knock:1,crowbar:1,dooropen:1,lamp:1};
 function hear(x,z,r,label){
   G.lastNoise={x,z,r,label};const fromP=!!PLAYER_NOISE[label];if(fromP&&label!=='lamp')G.pNoiseT=G.t;
   let resp=0,lsn=0;[...creatures].sort((a,b)=>Math.hypot(a.x-x,a.z-z)-Math.hypot(b.x-x,b.z-z)).forEach(c=>{if(c.dead||c.gor)return;if(label==='lamp'&&c.type==='listener')return;
     if(c.type==='raider'){if(fromP&&label!=='lamp'&&(c.mode==='patrol'||c.mode==='loot')&&Math.hypot(x-c.x,z-c.z)<r*1.2){c.mode='search';c.timer=3;c.goal={x,z};}return;}
-    if((label==='rstep'||label==='rdoor')&&c.state==='brawl')return;if(c.state==='bang'){if(fromP&&Math.hypot(x-c.x,z-c.z)<r*(c.ct.hear||1)+1)c.noisy+=.5;return;}
+    if((label==='rstep'||label==='rdoor')&&c.state==='brawl')return;if(c.state==='brawl'&&c.foe&&!c.foe.dead&&Math.hypot(c.foe.x-c.x,c.foe.z-c.z)<4)return; /* 11/7: 싸우는 중엔 소리에 고개 돌리지 않음 */if(c.state==='bang'){if(fromP&&Math.hypot(x-c.x,z-c.z)<r*(c.ct.hear||1)+1)c.noisy+=.5;return;}
     const d=Math.hypot(c.x-x,c.z-z);const rr=(los(c.x,c.z,x,z)?r:r*.7)*c.ct.hear*(c.type==='listener'?DK().lsHear:1);if(d>rr)return;
     if(c.state==='chase'){if(c.type==='listener'&&fromP){c.lsx=x;c.lsz=z;c.lost=0;c.path=[];}return;}
     if(resp>=3)return;resp++; // 한 소리에 몰려드는 건 가까운 3마리까지
@@ -1709,7 +1709,7 @@ function followPath(c,speed,dt,tx,tz){
   const st=Math.min(speed*dt,l);const ox=c.x,oz=c.z;moveCircle(c,ax/l*st,az/l*st,.26);if(Math.hypot(c.x-ox,c.z-oz)<st*.2){c.repath=Math.min(c.repath,.25);c.stuckT=(c.stuckT||0)+dt;}else c.stuckT=Math.max(0,(c.stuckT||0)-dt*2);
   if(c.stuckT>1.1){c.stuckT=0;unfreeze(c,wx,wz);} // 11/5: 문틀·택배박스에 끼면 옆 빈자리로 비켜서 다시 길 찾기
   c.face=lerpAng(c.face,Math.atan2(ax,az),dt*(c.state==='chase'?7:3.5));c.anim+=dt*speed*3.1;
-  c.stepT-=dt;if(c.stepT<=0){c.stepT=.62/Math.max(.7,speed*.8);creatureStep(c,speed);}return true;
+  c.stepT-=dt;if(c.stepT<=0){c.stepT=.62/Math.max(.7,speed*.8);creatureStep(c,speed);}c.mvT=G.t;return true;
 }
 function creatureStep(c,speed){if(c.big||c.gor)return;if(c.crawl){crawlStep(c);return;}if(c.type==='listener'){if(!playVoice(c,'step',{gain:speed>2?.75:.5}))sfx.shamble(c.x,c.z);}else sfx.shamble(c.x,c.z);}
 function updateCreature(c,dt){
@@ -1724,10 +1724,11 @@ function updateCreature(c,dt){
   if(c.hs){if(c.stun>0){poseCreature(c,0);return;}poseCreature(c,hideSearch(c,dt));if(c.peek){c.spine.rotation.x+=c.peek*(c.type==='listener'?1.6:1);c.neck.rotation.x-=c.peek*(c.type==='listener'?3.2:2.2);if(c.glb&&c.type==='listener')peekCrouch(c);}return;}
   const m=dayMul(),dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz),L=c.type==='listener',ct=c.ct;
   let sees=false;
+  /* 11/7: 약탈자 근처 싸움은 김수민 거리와 상관없이. 듣는 놈은 2m 안에서 움직이는(또는 덤비는) 약탈자를 공격 */
+  if(c.state!=='chase'&&c.state!=='brawl'&&c.state!=='bang'){const rr=creatures.find(o=>o.type==='raider'&&!o.dead&&Math.hypot(o.x-c.x,o.z-c.z)<(L?2:3.8)&&(L?(G.t-(o.mvT||-9)<.4||o.atkAnim>0):los(c.x,c.z,o.x,o.z)));if(rr){c.state='brawl';c.foe=rr;creatureSay(c,'alert');}}
   if(d<20){
     sees=L?listenerSense(c):canSee(c);
-    if(sees&&c.state!=='chase'&&!(c.state==='brawl'&&c.foe&&!c.foe.dead&&Math.hypot(c.foe.x-c.x,c.foe.z-c.z)<d)){startChase(c);}
-    if(c.state!=='chase'&&c.state!=='brawl'&&c.state!=='bang'){const rr=creatures.find(o=>o.type==='raider'&&!o.dead&&Math.hypot(o.x-c.x,o.z-c.z)<(L?1.4:3.8)&&(L||los(c.x,c.z,o.x,o.z)));if(rr){c.state='brawl';c.foe=rr;creatureSay(c,'alert');}}
+    if(sees&&c.state!=='chase'&&!(c.state==='brawl'&&c.foe&&!c.foe.dead&&Math.hypot(c.foe.x-c.x,c.foe.z-c.z)<d)){startChase(c,L&&d<2.2);}
     if(c.state==='chase'){
       if(sees){c.lsx=P.x;c.lsz=P.z;c.lost=0;c.seenX=P.x;c.seenZ=P.z;}
       else if(L){ // 마지막으로 소리 난 곳에 도착했는데 아무것도 없으면 포기
@@ -1790,7 +1791,7 @@ function frenzyTick(dt){const n=aggroN(null);if(n>0&&(P.moving||G.t-(P.shotT||-9
 function aggroN(ex){return creatures.reduce((n,o)=>n+(o!==ex&&!o.dead&&(o.state==='chase'||o.mode==='fightP')?1:0),0);}
 function aggroOK(c){if(c.type==='listener'&&c.state!=='chase'&&creatures.some(o=>o!==c&&o.type==='listener'&&!o.dead&&o.state==='chase'))return false; /* 11/6: 듣는 놈은 한 번에 한 마리만 쫓음 */
   return c.boss||c.hidden||c.state==='chase'||c.mode==='fightP'||aggroN(c)<(G.frenzy?99:G.floor===2?4:3);}/* 11/7: 동시 추격 3(2층 4), 계속 싸우며 돌아다니면 제한 없음 */
-function startChase(c){if(aggroOK(c)&&c.state!=='chase'&&c.type!=='raider'&&Math.hypot(c.x-P.x,c.z-P.z)<14)vo('spot',18);if(!aggroOK(c)){ // 자리가 없으면 그 자리에서 노려보며 대기(쫓던 놈이 죽거나 놓치면 바로 합류)
+function startChase(c,force){if((force||aggroOK(c))&&c.state!=='chase'&&c.type!=='raider'&&Math.hypot(c.x-P.x,c.z-P.z)<14)vo('spot',18);if(!force&&!aggroOK(c)){ // 자리가 없으면 그 자리에서 노려보며 대기(쫓던 놈이 죽거나 놓치면 바로 합류)
     if(c.type==='raider'){if(c.mode!=='warn'){c.mode='search';c.timer=2;c.goal={x:c.x,z:c.z};}}else if(c.state!=='turn'&&c.state!=='listen'){c.state='listen';c.timer=1.2;c.tx=P.x;c.tz=P.z;}return;}
   if(c.type==='raider'){c.mode='fightP';c.warned=true;c.lsx=P.x;c.lsz=P.z;c.lost=0;if(c.pair&&!c.pair.dead&&c.pair.mode!=='fightP'&&aggroOK(c.pair)){c.pair.mode='fightP';c.pair.warned=true;c.pair.lsx=P.x;c.pair.lsz=P.z;}return;}c.state='chase';c.path=[];c.lost=0;c.lsx=P.x;c.lsz=P.z;if(c.type==='listener'){c.lsx=c.tx||P.x;c.lsz=c.tz||P.z;}creatureSay(c,'alert');vox.gasp();}
 function poseCreature(c,mv){
@@ -2008,7 +2009,7 @@ function raiderDoors(c){for(const d of DOORS){if(d.open||d.type==='crowbar'||d.t
 function rFollow(c,spd,dt,tx,tz){DOOR_PASS=true;const r=followPath(c,spd,dt,tx,tz);DOOR_PASS=false;return r;}
 function nearestFoe(c,maxD){let best=null,bd=maxD;for(const o of creatures){if(o.dead||o.type==='raider'||o.gor)continue;const d=Math.hypot(o.x-c.x,o.z-c.z);if(d<bd&&los(c.x,c.z,o.x,o.z)){bd=d;best=o;}}return best;}
 function hurtNPC(t,dmg,from){if(t.dead||t.hidden)return;if(t.type==='raider'&&from.type!=='raider')dmg*=.6;t.hp-=dmg;t.stun=.25;t.flinch=.6;blood(t.x,1.2,t.z,6,[Math.sign(t.x-from.x)||1,Math.sign(t.z-from.z)||0]);sfx.flesh(t.x,t.z);
-  if(t.hp<=0)killCreature(t,[0,1],true);else if(t.type==='raider'){if(t.mode!=='fightP'){t.mode='brawl';t.foe=from;}}else if(t.state!=='chase'){t.state='brawl';t.foe=from;}}
+  if(t.hp<=0)killCreature(t,[0,1],true);else if(t.type==='raider'){if(t.mode!=='fightP'){t.mode='brawl';t.foe=from;}}else if(t.state!=='chase'||(t.type==='listener'&&from&&from.type==='raider')){t.state='brawl';t.foe=from;t.hs=null;}} /* 11/7: 듣는 놈은 때린 놈을 바로 공격 */
 function throwAt(c,tx,ty,tz,target){const sx=c.x,sz=c.z,sy=1.55,d=Math.hypot(tx-sx,tz-sz),T=clamp(d/9,.25,1.4);
   const ex=(Math.random()-.5)*d*.08,ez=(Math.random()-.5)*d*.08;const vx=(tx+ex-sx)/T,vz=(tz+ez-sz)/T,vy=(ty-sy)/T+.5*CFG.g*T;
   const m=new THREE.Mesh(new THREE.CylinderGeometry(.03,.035,.18,6),new THREE.MeshPhongMaterial({color:0x2a4a2a,shininess:80}));m.position.set(sx,sy,sz);world.add(m);
@@ -2143,7 +2144,7 @@ function hitCreature(c,part,mult,dir,x,y,z){
   c.lastPart=part;c.hp-=dmg;c.stun=head?.55:.3;c.flinch=head?1:.6;const kb=head?.45:.25;c.kx=dir[0]*kb;c.kz=dir[1]*kb;
   blood(x,y,z,head?16:8,dir);G.hitT=.25;$('hit').className=head?'on head':'on';
   if(head)sfx.headshot(c.x,c.z);else sfx.flesh(c.x,c.z);
-  if(c.hp<=0)killCreature(c,dir);else{creatureSay(c,'hurt');if(c.state!=='chase'){c.tx=P.x;c.tz=P.z;startChase(c);c.lsx=P.x;c.lsz=P.z;}}
+  if(c.hp<=0)killCreature(c,dir);else{creatureSay(c,'hurt');if(c.state!=='chase'){c.tx=P.x;c.tz=P.z;startChase(c,c.type==='listener');c.lsx=P.x;c.lsz=P.z;}}
 }
 
 /* ================= 파티클 ================= */
