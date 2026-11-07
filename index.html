@@ -419,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.26 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.27 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1398,8 +1398,8 @@ function gorSlam(c){const m=dayMul(),d=Math.hypot(P.x-c.x,P.z-c.z);c.sq=.68;c.sq
   creatures.forEach(o=>{if(o!==c&&!o.dead&&Math.hypot(o.x-c.x,o.z-c.z)<GA.slamR&&!wallBetween(c.x,c.z,o.x,o.z))hurtNPC(o,GA.slamDmg,c);});
   if(d<GA.slamR&&!P.hide&&!P.dead&&!wallBetween(c.x,c.z,P.x,P.z)){damagePlayer(GA.slamDmg*m,'gorilla');const k=(GA.slamR-d+.6)/(d||.01);moveCircle(P,(P.x-c.x)*k,(P.z-c.z)*k,.22);P.kick=1;}}
 // 11/6 사용자: 보스 옷장 반응 — 고릴라는 문짝째 내려찍기, 큰 머리는 냄새 맡다 박치기. 숨는 걸 봤으면 확률 큼
-const BOSS_HIDE={gor:{saw:.8,no:.15,dmg:50,name:'고릴라',hit:'옷장째 내려찍혔다! 끌려나왔다',miss:'…옷장 문짝이 우그러졌다. 놈이 물러난다.'},
-  big:{saw:.6,no:.1,dmg:30,name:'큰 머리',hit:'옷장 문을 들이받고 튕겨 나왔다!',miss:'…쿵. 문짝만 들이받고 돌아간다.'}};
+const BOSS_HIDE={gor:{saw:.8,no:.6,dmg:50,name:'고릴라',hit:'옷장째 내려찍혔다! 끌려나왔다',miss:'…옷장 문짝이 우그러졌다. 놈이 물러난다.'},
+  big:{saw:.6,no:.4,dmg:30,name:'큰 머리',hit:'옷장 문을 들이받고 튕겨 나왔다!',miss:'…쿵. 문짝만 들이받고 돌아간다.'}};
 function hideFront(k){const h=P.hide&&P.hide.h;if(!h)return null;for(let q=k||1;q>=.45;q-=.1){const x=h.face[0]+h.nx*q,z=h.face[1]+h.nz*q;if(!blockedCircle(x,z,.3))return[x,z];}return[h.fx,h.fz];} // 옷장 앞 빈자리(침대 등에 막히면 가까이)
 function bossHidePr(c,kind){const B=BOSS_HIDE[kind];return c.sawHide?B.saw:B.no;}
 function bossCloset(c,kind,hit){const H=P.hide;if(!H)return;const h=H.h,B=BOSS_HIDE[kind];if(hit==null)hit=Math.random()<bossHidePr(c,kind);
@@ -2300,7 +2300,7 @@ function nearHide(c){const h=P.hide.h;return Math.hypot(c.x-h.fx,c.z-h.fz)<4.5&&
 function freeIn(U,r){const[x0,z0,x1,z1]=uRect(U,0,0,U.W,U.D);for(let k=0;k<40;k++){const x=lerp(x0+.5,x1-.5,r()),z=lerp(z0+.5,z1-.5,r());if(!blockedCircle(x,z,.3))return[x,z];}return null;}
 function newHS(c){const h=P.hide.h,rnd=Math.random;const pts=[];if(!c.sawHide)for(let i=0;i<2;i++){const p=freeIn(h.cont.U,rnd);if(p)pts.push(p);} /* 숨는 걸 봤으면 방을 둘러보지 않고 바로 옷장으로 */
   pts.push([h.face[0]+h.nx*.75,h.face[1]+h.nz*.75]);
-  const hs={ph:'move',i:0,t:0,lin:0,susp:c.hidden&&c.sawHide?.90:c.type==='listener'?(c.hideClose?.97:c.sawHide?.80:c.doorIn!=null&&G.t-c.doorIn<60?.40:.10):c.type==='raider'?(c.sawHide?.90:.10):.10+(c.sawHide?.30:0),pts}; /* 약탈자: 숨는 걸 봤으면 90% */ /* 11/6 듣는 놈: 숨는 걸 봤으면 80%, 문 뚫고 들어왔으면 40% */if(c.type!=='raider'){c.state='search';}c.path=[];c.repath=0;return hs;}
+  const hs={ph:'move',i:0,t:0,lin:0,susp:c.hidden?(c.sawHide?.90:.30):c.type==='listener'?(c.hideClose?.97:c.sawHide?.80:c.doorIn!=null&&G.t-c.doorIn<60?.40:.10):c.type==='raider'?(c.sawHide?.90:.10):.10+(c.sawHide?.30:0),pts}; /* 약탈자: 숨는 걸 봤으면 90% */ /* 11/6 듣는 놈: 숨는 걸 봤으면 80%, 문 뚫고 들어왔으면 40% */if(c.type!=='raider'){c.state='search';}c.path=[];c.repath=0;return hs;}
 function hideSearch(c,dt){const hs=c.hs,m=dayMul();let mv=0;
   if(hs.ph==='reveal'){hs.t+=dt;const hh=P.hide&&P.hide.h;if(hh)hideLight.position.set(hh.face[0]+hh.nx*.22-hh.nz*.25,1.75,hh.face[1]+hh.nz*.22+hh.nx*.25);hideLight.intensity=.85+Math.random()*.3;c.peek=Math.min(.3,hs.t*1.5);c.headTarget=0;c.atkAnim=0;if(hs.t>1.45)finishReveal(c);return 0;}
   if(!P.hide){c.hs=null;c.peek=0;if(canSee(c))startChase(c);else if(c.type==='raider'){c.mode='search';c.timer=3;c.goal={x:P.x,z:P.z};}else{c.state='search';c.timer=2;}return 0;}
