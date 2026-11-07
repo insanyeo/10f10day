@@ -418,7 +418,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.12 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.13 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1903,7 +1903,7 @@ const TITLES=[
   {b:13,id:'slow',name:'느림보',desc:'굶주림으로 쓰러짐',k:'d_starve',n:1,ic:'drum',rim:'#7a6a50',secret:true},
   {b:14,id:'claus',name:'폐쇄공포증',desc:'옷장에서 듣는 놈에게 들켜 죽음',k:'d_lscl',n:1,ic:'ear',rim:'#5a4a6a',secret:true},
   {b:15,id:'hideseek',name:'꼭꼭 숨어라',desc:'옷장에서 약탈자에게 들켜 죽음',k:'d_rdcl',n:1,ic:'bat',rim:'#6a5040',secret:true},
-  {b:16,id:'overkill',name:'확인 사살',desc:'1층 보스가 쓰러진 뒤 새총 10발 넘게 발사',k:'post_hb',n:1,ic:'skull',rim:'#8a1018',secret:true},
+  {b:16,id:'overkill',name:'참된자',desc:'1층 보스가 쓰러진 뒤 새총 10발 넘게 발사',k:'post_hb',n:1,ic:'skull',rim:'#8a1018',secret:true},
   {b:17,id:'hodwae',name:'호돼의 공포',desc:'옷장에서 8층 보스에게 처형당함',k:'d_bhcl',n:1,ic:'head',rim:'#8a6a3a',secret:true},
   {b:18,id:'whoisSU',name:'박승욱그는누구인가',desc:'옷장에서 4층 보스에게 처형당함',k:'d_gocl',n:1,ic:'fist',rim:'#5a5a5a',secret:true},
   {b:19,id:'reunion',name:'다시 만나러 갈게',desc:'인산이 쪽지 10장을 모두 모아 탈출',k:'esc_notes',n:1,ic:'heart',rim:'#c9a24a'},
@@ -1945,7 +1945,7 @@ function renderFloorPick(){const box=$('floorGrid');if(!box)return;box.innerHTML
 /* 난이도를 바꾸면 진행 중인 판은 난이도 칭호 대상에서 빠짐 */
 function diffChanged(){if(G.run&&G.run.d!==OPT.diff){if(G.run.full&&G.state==='play')toast('난이도를 바꿔서 이번 판은 난이도 칭호에서 빠집니다',true);G.run.full=false;}if(FLOOR_SAVE&&FLOOR_SAVE.run&&FLOOR_SAVE.run.d!==OPT.diff)FLOOR_SAVE.run.full=false;
   ['f10_save','f10_best'].forEach(K=>{try{const o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.s&&o.s.run&&o.s.run.d!==OPT.diff){o.s.run.full=false;localStorage.setItem(K,JSON.stringify(o));}}catch(e){}});}
-function startAt(F){if(F===10){lobbyAct('new10');return;}G.floor=F;FLOOR_SAVE=floorKit(F);FLOOR_SAVE.run={d:OPT.diff,full:false};try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:F,s:FLOOR_SAVE}));}catch(e){}bestUpdate(F,FLOOR_SAVE);
+function startAt(F){if(F===10){lobbyAct('new10');return;}monoRunReset();G.floor=F;FLOOR_SAVE=floorKit(F);FLOOR_SAVE.run={d:OPT.diff,full:false};try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:F,s:FLOOR_SAVE}));}catch(e){}bestUpdate(F,FLOOR_SAVE);
   $('titleP').hidden=true;if(typeof prewarm==='function')prewarm();startFloor();fadeIn(.8);lockPointer();setTimeout(()=>{if(!locked)toast('화면을 클릭하면 시점 조작이 시작됩니다');},400);}
 /* ================= 약탈자 (사람, 7층부터) =================
    빠따 든 놈(근접) + 던지는 놈(병·돌)이 짝으로 다닌다. 세대를 돌며 상자를 털고, 김수민을 보면 먼저 경고한 뒤 덤빈다.
@@ -2680,15 +2680,20 @@ const MONO_LINES={ // 11/5 사용자: 말 줄이기 — 정보가 되는 말만 
   killHidden:'이제 문만 열면 돼.',
   blackout:'정전이야.',
   seeRaider:'사람이다… 빠따 들었어.',
+  hbSeen:'드럼통을 피해야 해.',
 };
+/* 11/7 사용자: 대사 너무 많음 → 첫 조우·첫 발견 대사는 한 판(새 게임~탈출)에 한 번만. 층 다시 시작·다음 층에서도 안 나옴 */
+const MONO_RUN=new Set(['seeShambler','hearSob','seeListener','seeRaider','lockedNoBar','gotBar','killShambler','leaveHome','elev','stairs','survivor','robbed','roomBlood','roomCouple','roomFamily','roomPacking','roomStudent','roomWorker']);
+let MONO_EVER={};try{MONO_EVER=JSON.parse(localStorage.getItem('f10_mono')||'{}')||{};}catch(e){}
+function monoRunReset(){MONO_EVER={};try{localStorage.removeItem('f10_mono');}catch(e){}}
 const MONO={q:[],cur:null,t:0,shown:{},gap:0,el:null};
 // key: 한 판에 한 번만(once=false면 반복 가능). prio: 큐 앞에 끼움
-function mono(key,{once=true,prio=false}={}){const s=MONO_LINES[key];if(!s)return;if(once&&MONO.shown[key])return;
+function mono(key,{once=true,prio=false}={}){const s=MONO_LINES[key];if(!s)return;if(once&&MONO.shown[key])return;if(MONO_RUN.has(key)&&MONO_EVER[key])return;
   if(MONO.cur&&MONO.cur.key===key)return;if(MONO.q.some(m=>m.key===key))return;
   // 큐가 차면 넣지 않는다(조건이 계속되면 다음에 다시 들어옴). 급한 건 앞에 끼우고 맨 뒤를 밀어냄
   const m={key,s};if(prio){MONO.q.unshift(m);if(MONO.q.length>4)MONO.q.length=4;}else if(MONO.q.length<4)MONO.q.push(m);}
 function monoUpdate(dt){const box=$('mono');if(!box)return;
-  if(!MONO.cur){MONO.gap-=dt;if(MONO.gap>0||!MONO.q.length||G.state!=='play')return;MONO.cur=MONO.q.shift();MONO.shown[MONO.cur.key]=1;MONO.t=0;box.hidden=false;box.classList.remove('out');$('monoT').textContent='';}
+  if(!MONO.cur){MONO.gap-=dt;if(MONO.gap>0||!MONO.q.length||G.state!=='play')return;MONO.cur=MONO.q.shift();MONO.shown[MONO.cur.key]=1;if(MONO_RUN.has(MONO.cur.key)){MONO_EVER[MONO.cur.key]=1;try{localStorage.setItem('f10_mono',JSON.stringify(MONO_EVER));}catch(e){}}MONO.t=0;box.hidden=false;box.classList.remove('out');$('monoT').textContent='';}
   const m=MONO.cur;MONO.t+=dt;const n=Math.min(m.s.length,Math.floor(MONO.t/.045));const tx=$('monoT');
   if(tx.textContent.length!==n){tx.textContent=m.s.slice(0,n);if(n%2===0&&AC)tone(1400+Math.random()*200,1300,.015,.012,'square');}
   const hold=m.s.length*.045+1.6+m.s.length*.05;
@@ -2704,7 +2709,7 @@ function monoWatch(dt){monoTick-=dt;if(monoTick>0||P.dead)return;monoTick=.3;
     else if(c.theme==='couple')mono('roomCouple');else if(c.theme==='student')mono('roomStudent');else if(c.theme==='worker')mono('roomWorker');}
   const lx=-Math.sin(P.yaw),lz=-Math.cos(P.yaw);
   for(const c of creatures){if(c.dead)continue;const dx=c.x-P.x,dz=c.z-P.z,d=Math.hypot(dx,dz);
-    if(c.type==='listener'&&d<14&&voicePlaying(c))mono('hearSob');
+    if(c.type==='listener'&&d<11&&voicePlaying(c)&&c.state!=='chase'&&!los(P.x,P.z,c.x,c.z)&&!creatures.some(q=>!q.dead&&q.state==='chase'))mono('hearSob'); /* 11/7: 벽 너머에서 처음 들릴 때만(쫓기는 중엔 안 함) */
     if(d>9||(dx*lx+dz*lz)/d<.8||!los(P.x,P.z,c.x,c.z))continue;
     if(!(P.lamp||d<3||lightAt(c.x,c.z)[0]>.15))continue;
     mono(c.type==='listener'?'seeListener':'seeShambler');
@@ -3055,7 +3060,7 @@ function hbRoamPt(ox,oz){const cs=CORR.filter(q=>q.name!=='H');for(let k=0;k<60;
 function hbIndoor(c,dt,dx,dz,d,see){
   // ① 나가는 중: 두리번(2.2초) → 현관 밖으로 → 김수민이 옷장에서 나올 때까지 복도에서 대기
   if(c.hbLeave){const L=c.hbLeave;L.t+=dt;
-    if(!P.hide&&(see||L.t>40)){c.hbLeave=null;c.path=[];}
+    if(!P.hide&&(see||L.t>40)){c.hbLeave=null;c.path=[];c.hbLost=1;} /* 11/7: 다시 찾으면 1순위로 달려와 발차기 */
     else{if(L.look>0){L.look-=dt;c.headTarget=Math.sin(G.t*1.6)*1.1;c.face+=Math.sin(G.t*.9)*dt*.8;return 0;}
       if(Math.hypot(L.x-c.x,L.z-c.z)>.4){{const dr=DOORS.find(q=>!q.open&&q.type!=='survivor'&&Math.hypot(q.cx-c.x,q.cz-c.z)<1.4);if(dr){dr.open=true;doorSnd(dr,'bash',{rate:.9,gain:.8});}} /* 닫힌 문은 열고 나감 */
         const mv=followPath(c,HB.chase*1.4,dt,L.x,L.z)?1:0;c.headTarget=Math.sin(G.t*1.1)*.5;return mv;}
@@ -3073,7 +3078,7 @@ function hbIndoor(c,dt,dx,dz,d,see){
   c.hbMel=Math.max(0,(c.hbMel||0)-dt);
   if(c.swing>0){c.swing-=dt;c.face=lerpAng(c.face,Math.atan2(dx,dz),dt*6);if(c.swing<=0){c.hbMel=HBI.cd;if(d<1.9&&!P.hide&&!P.dead){damagePlayer(HB.meleeDmg,'drum','heavy');const k=1.2/(d||.01);moveCircle(P,dx*k,dz*k,.22);P.kick=1;at(c.x,c.z,()=>{tone(80,36,.35,.6,'square');nz(.25,250,1,.6,0,'lowpass');});}else at(c.x,c.z,()=>nz(.3,700,1,.25,0,'bandpass',300));}return 0;}
   if(!P.hide&&see&&d<1.45&&c.hbMel<=0){c.swing=c.swingMax=HBI.swing;c.atkAnim=0;creatureSay(c,'attack');return 0;}
-  if(d>1.1||!see)return followPath(c,HBI.spd*(c.ph2?1.15:1),dt,P.x,P.z)?1:0;
+  if(d>1.1||!see)return followPath(c,see?HBI.spd*(c.ph2?1.15:1):HB.rushSpd*.85,dt,P.x,P.z)?1:0; /* 11/7: 집 안에서도 놓치면 달려옴 */
   return 0;}
 function hiddenChase(c,dt,dx,dz,d,sees){const see=los(c.x,c.z,P.x,P.z);let mv=0;
   c.vT=(c.vT??3)-dt;if(c.vT<=0&&!voicePlaying(c)){c.vT=4+Math.random()*3;creatureSay(c,'idle');} // 일반 음성(3개 번갈아)
@@ -3081,11 +3086,14 @@ function hiddenChase(c,dt,dx,dz,d,sees){const see=los(c.x,c.z,P.x,P.z);let mv=0;
   const ind=hbIndoor(c,dt,dx,dz,d,see);if(ind!=null)return ind;
   // 11/6 사용자: 멀리 떨어지면 달려와서 근접으로 때림(돌진 4.6m/s 최대 4.5초 → 1.4m 안에서 0.35초 들어 올렸다 내려침 22·밀쳐냄 → 7초 쿨)
   c.rushCd=Math.max(0,(c.rushCd??4)-dt);
+  /* 11/7 사용자: 김수민을 놓치면(안 보임) 1순위 = 달려와서 발차기(쿨·거리 무시, 보일 때까지 계속 달림) */
+  if(!see&&!P.hide&&!P.dead)c.hbLost=1;
+  if(!c.rush&&c.hbLost&&!P.hide&&!P.dead){c.hbLost=0;c.rush=1;c.rushT=see?4.5:9;c.swing=0;c.path=[];c.repath=0;creatureSay(c,'alert');}
   if(!c.rush&&c.rushCd<=0&&d>HB.rushD&&see&&!P.hide&&!P.dead){c.rush=1;c.rushT=4.5;c.swing=0;creatureSay(c,'alert');at(c.x,c.z,()=>{tone(90,50,.4,.4,'sawtooth');nz(.4,300,1,.35,0,'lowpass');});if(!G.hbRushTold){G.hbRushTold=1;toast('달려온다! 거리를 벌려도 쫓아와서 때린다',true);}}
   if(c.rush){c.rushT-=dt;c.face=lerpAng(c.face,Math.atan2(dx,dz),dt*8);
     if(c.swing>0){c.swing-=dt;if(c.swing<=0){if(d<1.9&&!P.hide&&!P.dead){damagePlayer(HB.meleeDmg,'drum','heavy');const k=1.4/(d||.01);moveCircle(P,dx*k,dz*k,.22);P.kick=1;at(c.x,c.z,()=>{tone(80,36,.35,.6,'square');nz(.25,250,1,.6,0,'lowpass');});}else at(c.x,c.z,()=>nz(.3,700,1,.25,0,'bandpass',300));c.rush=0;c.rushCd=7;c.drumT=Math.max(c.drumT??0,1.4);}return 0;}
     if(d<1.45){c.swing=c.swingMax=.42;c.atkAnim=0;creatureSay(c,'attack');return 0;}
-    if(c.rushT<=0||P.hide){c.rush=0;c.rushCd=5;}else{c.stepT-=dt;if(c.stepT<=0){c.stepT=.28;at(c.x,c.z,()=>{nz(.12,140,1,.35,0,'lowpass');});}return followPath(c,HB.rushSpd,dt,P.x,P.z)?1:0;}}
+    if(c.rushT<=0&&!see&&!P.hide)c.rushT=3;if(c.rushT<=0||P.hide){c.rush=0;c.rushCd=5;}else{c.stepT-=dt;if(c.stepT<=0){c.stepT=.28;at(c.x,c.z,()=>{nz(.12,140,1,.35,0,'lowpass');});}return followPath(c,HB.rushSpd,dt,P.x,P.z)?1:0;}}
   if(d>HB.keep||!see)mv=followPath(c,HB.chase*(c.ph2?HB.ph2Spd:1),dt,P.x,P.z)?1:0;
   c.drumT=(c.drumT??1.5)-dt;if(see&&!P.dead&&d<22&&c.drumT<=0&&!P.hide){c.drumT=HB.drumCd*(c.ph2?HB.ph2Cd:1);c.atkAnim=.6;c.atkN=(c.atkN||0)+1;
     // 11/6: 기름통 투척(포물선·빨간 원·웅덩이) — 1페이즈 3번에 1번, 2페이즈 2번에 1번
@@ -3177,7 +3185,7 @@ function spawnHiddenBoss(){// 공동현관 앞(남복도 동쪽)을 막고 나�
   if(hk){applyShamblerGLB(c,false,hk);c.root.scale.setScalar(HB.scaleM);c.headR=HBJ.headR*HB.scaleM;}
   else{c.root.scale.setScalar(HB.scale);if(c.glb){c.headR=(S2J.headR)*HB.scale;const k=s2Skin();if(!k.mD){k.mD=k.m.clone();k.mD.color.setRGB(.62,.6,.64);}c.glb.material=k.mD;}}
   if(!playVoice(c,'intro',{gain:1.25}))at(x,z,()=>{tone(150,55,1.1,.5,'sawtooth');nz(.9,300,1,.45,0,'lowpass');tone(95,40,1.3,.3,'square');});else at(x,z,()=>{nz(1.2,70,1,.35,0,'lowpass');});
-  say(HB.name,HB.line);toast(HB.name+' — '+HB.line,true);hear(P.x,P.z,99,'step');c.state='chase';G.hiddenBoss=c;
+  say(HB.name,HB.line);toast(HB.name+' — '+HB.line,true);setTimeout(()=>mono('hbSeen',{prio:true}),1600);hear(P.x,P.z,99,'step');c.state='chase';G.hiddenBoss=c;
   {const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz)||.01;if(d<5){const k=(5.2-d)/d;moveCircle(P,dx*k,dz*k,.22);P.kick=Math.max(P.kick,1);G.hurt=Math.max(G.hurt,.6);at(c.x,c.z,()=>{tone(80,36,.5,.6,'square');nz(.4,200,1,.6,0,'lowpass');});toast('밀쳐졌다!',true);}}}
 
 /* ================= 이벤트 ================= */
@@ -3935,7 +3943,7 @@ function lobbyModalOpen(){return [...document.querySelectorAll('.lmodal')].some(
 function lobbyAct(act){
   initAudio();if(AC)tone(900,700,.05,.06,'square');
   if(act==='new'&&typeof META!=='undefined'&&(META.esc>=1||(META.reach||10)<10)){renderFloorPick();$('mFloor').hidden=false;return;}
-  if(act==='new'||act==='new10'){G.floor=10;FLOOR_SAVE=initialSave();FLOOR_SAVE.run={d:OPT.diff,full:true};try{localStorage.removeItem('f10_save');}catch(e){}if(typeof prewarm==='function')prewarm();playIntro(()=>{startFloor();lockPointer();setTimeout(()=>{if(!locked)toast('화면을 클릭하면 시점 조작이 시작됩니다');},400);});}
+  if(act==='new'||act==='new10'){if(typeof monoRunReset==='function')monoRunReset();G.floor=10;FLOOR_SAVE=initialSave();FLOOR_SAVE.run={d:OPT.diff,full:true};try{localStorage.removeItem('f10_save');}catch(e){}if(typeof prewarm==='function')prewarm();playIntro(()=>{startFloor();lockPointer();setTimeout(()=>{if(!locked)toast('화면을 클릭하면 시점 조작이 시작됩니다');},400);});}
   else if(act==='cont'){let o=null;try{o=readSave();}catch(e){}
     if(o&&o.s){G.floor=o.floor;FLOOR_SAVE=o.s;$('titleP').hidden=true;startFloor();lockPointer();setTimeout(()=>{if(!locked)toast('화면을 클릭하면 시점 조작이 시작됩니다');},400);}
     else{$('contText').textContent=(G.saveBroken?'저장 데이터가 손상돼 지웠습니다. ':'')+'저장된 진행이 없습니다. 비상계단으로 한 층 내려가면 그 층 진입 시점이 저장됩니다.';$('mCont').hidden=false;}}
