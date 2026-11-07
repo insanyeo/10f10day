@@ -420,7 +420,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.29 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.30 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -2289,12 +2289,12 @@ addEventListener('resize',()=>{if(P.hide)drawSlits();});
 function peepDoor(){if(P.hide||P.peep||P.dead||G.state!=='play')return null;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);let best=null,bd=1.3;
   for(const d of DOORS){if(d.dk!=='unit'||d.open||d.type==='survivor')continue;const rx=P.x-d.cx,rz=P.z-d.cz,inn=rx*d.nx+rz*d.nz,lat=Math.abs(rx*d.tx+rz*d.tz);
     if(inn<.12||inn>bd||lat>.55)continue;if(fx*-d.nx+fz*-d.nz<.45)continue;bd=inn;best=d;}return best;}
-function enterPeep(d){cancelDraw();const y0=Math.atan2(d.nx,d.nz);P.peep={d,y0,lamp:P.lamp,kn:1.5};P.lamp=false;P.yaw=y0;P.pitch=-.05;
+function enterPeep(d){cancelDraw();vo('peep',4);BR.pT=3.5;const y0=Math.atan2(d.nx,d.nz);P.peep={d,y0,lamp:P.lamp,kn:1.5};P.lamp=false;P.yaw=y0;P.pitch=-.05;
   try{fx('ui_select',{gain:.5});}catch(e){}if(!G.peepTip){G.peepTip=1;toast(TOUCH?'문구멍으로 복도를 본다 · 화면을 밀어 살짝 둘러보기':'문구멍으로 복도를 본다 · 마우스로 살짝 둘러보기');}}
 function exitPeep(){const p=P.peep;if(!p)return;P.peep=null;P.lamp=p.lamp;P.yaw=p.y0;P.pitch=0;}
 function peepTick(dt){const p=P.peep,d=p.d;if(d.open){exitPeep();return;}const ox=d.cx-d.nx*.6,oz=d.cz-d.nz*.6;p.kn-=dt;
   if(p.kn<=0&&creatures.some(c=>!c.dead&&c.type!=='raider'&&!c.gor&&Math.hypot(c.x-ox,c.z-oz)<1.0)){p.kn=3+Math.random()*2;d.shake=.35;vo('startle',12);if(!doorSnd(d,'knock'))at(d.cx,d.cz,()=>{nz(.12,180,1.4,.5,0,'lowpass');});}}
-function enterHide(h){if(P.dead||G.reveal)return;vo('hide',10);cancelDraw();
+function enterHide(h){if(P.dead||G.reveal)return;vo('hide',6);BR.hideT=2.7;cancelDraw();
   const saw=new Set();creatures.forEach(c=>{if(c.dead)return;if(c.type==='raider'&&c.mode!=='flee'&&!['fightP','warn'].includes(c.mode)&&canSee(c)){saw.add(c);c.mode='search';c.timer=6;c.goal={x:h.fx,z:h.fz};return;} /* 11/6: 약탈자는 순찰·털이 중이어도 숨는 걸 보면 옷장으로 */
     if((c.gor&&c.awoke)||(c.big&&['chase','closet','bang'].includes(c.state))){const d=Math.hypot(P.x-c.x,P.z-c.z);if(d<14&&!wallBetween(c.x,c.z,P.x,P.z))saw.add(c);c.lsx=h.fx;c.lsz=h.fz;return;} /* 11/6: 깨어난 고릴라·쫓던 대두왕은 보이는 데서 숨으면 '봤음' */
     c.hideClose=false;if(c.type==='listener'&&!c.dead&&Math.hypot(P.x-c.x,P.z-c.z)<3.2&&!wallBetween(c.x,c.z,P.x,P.z)){saw.add(c);c.hideClose=true;c.lsx=h.fx;c.lsz=h.fz;if(c.state!=='chase'){c.state='go';c.tx=h.fx;c.tz=h.fz;c.path=[];c.repath=0;}c.hsCD=0;return;} /* 11/7: 듣는 놈 코앞(3.2m)에서 옷장 문 열면 바로 들킴 */
@@ -2517,7 +2517,7 @@ function interact(t){
       if(t.open){if(occupiesDoor(P,t)){toast('문틀에서 한 걸음 물러나야 닫을 수 있다');return;}if(creatures.some(c=>!c.dead&&occupiesDoor(c,t,.3))){toast('문 사이에 뭔가 걸려 있다');return;}t.open=false;sfx.door();return;}
       if(t.type==='survivor'){mono('survivor');sfx.knock();hear(t.cx,t.cz,6,'knock');const i=G.survIdx[t.plate]=(G.survIdx[t.plate]||0);G.survIdx[t.plate]++;say(t.label+' 안쪽',survSay(t,i));return;}
       if(t.type==='crowbar'){if(!P.crowbars.length){toast('빠루가 있으면 열 수 있을 것 같다');mono('lockedNoBar');return;}G.holdCrow={door:t,t:0,vt:0};hear(t.cx,t.cz,10,'crowbar');sfx.creak();vox.effort();return;}
-      t.open=true;sfx.door();vox.door();hear(t.cx,t.cz,2.0,'dooropen');if(G.t-(G.jsDoorT??-99)>15&&creatures.some(c=>!c.dead&&!c.hidden&&Math.hypot(c.x-t.cx,c.z-t.cz)<2.3&&Math.hypot(c.x-P.x,c.z-P.z)<3.2&&!wallBetween(P.x,P.z,c.x,c.z))){G.jsDoorT=G.t;jumpScare();}return;
+      t.open=true;sfx.door();vox.door();hear(t.cx,t.cz,2.0,'dooropen');if(G.t-(G.jsDoorT??-99)>15&&creatures.some(c=>!c.dead&&!c.hidden&&Math.hypot(c.x-t.cx,c.z-t.cz)<2.3&&Math.hypot(c.x-P.x,c.z-P.z)<3.2&&!wallBetween(P.x,P.z,c.x,c.z))){G.jsDoorT=G.t;jumpScare();vo('jump',0);}return;
     case'cont':{if(t.searched)return;t.searched=true;if(t.key){t.key=false;gotKey();}t.meshes.forEach(m=>{if(m.material&&m.material.color){m.material=m.material.clone();m.material.userData.perFloor=true;m.material.color.multiplyScalar(.6);if(m.material.emissive)m.material.emissive.setHex(0);}});t.glowM=null;
       /* 11/6: 빠루 없으면 웬만하면 나오게(40%, 3번째 상자엔 반드시) · TPS실·쓰레기실은 빠루 60%·섬광탄 55% */
       {const ok=!P.crowbars.length||(P.crowbars.length===1&&P.crowbars[0]<=2);
@@ -3287,7 +3287,7 @@ function update(dt){
   ptTick(dt);
   if(G.cine){G.t+=dt;(G.cine.tick||cineTick)(dt*(G.cine.spd||1));return;} /* 11/7: 옷장 처형은 2.5배 빠르게(spd) */
   for(const c of creatures){if(!c.dfx){c.dfx=1;const k=DK().hp;if(k!==1&&!c.dead){c.baseHp*=k;c.maxHp*=k;c.hp*=k;}}} // 난이도 체력 배율(새로 생긴 적에 한 번)
-  G.t+=dt;const pl=CFG.player;if(G.state==='play'&&!P.dead&&P.hp<25)vo('lowhp',35);
+  G.t+=dt;const pl=CFG.player;if(G.state==='play'&&!P.dead&&P.hp<25)vo('lowhp',22);
   let f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0);const tm=TOUCH&&Math.hypot(TMV.x,TMV.y)>.22;if(tm){f=-TMV.y;s=TMV.x;}const run=(keys.ShiftLeft||keys.ShiftRight||(tm&&TMV.run))&&!P.crouch&&!P.drawing;
   if(P.peep){if(f||s||P.dead||G.hurt>.5)exitPeep();else peepTick(dt);}
   let sp=P.crouch?1.1:run?(P.shoes?4.8:4.0):2.2;/* 11/6 강화 신발: 달리기 4.0→4.8 */if(P.drawing)sp*=.6;if(P.slowT>0){P.slowT-=dt;sp*=BH.slowK;}if(inFlood(P.x,P.z))sp*=.78;P.moving=0;P.vx=0;P.vz=0;
@@ -3672,7 +3672,7 @@ const FXG={hit_body:1.5,hit_body_heavy:1.5,hit_head:1.25,hit_wall:1.3,hit_metal:
   breath_run:.75,breath_fear:.8,breath_low:.75,breath_relief:.8,breath_idle:.6,amb_creak:.9,amb_thud:.9,amb_scream:1.4,found:.55,ui_select:.5};
 const FXL={};
 /* 11/6 김수민 짧은 반응: v_* 목소리 파일이 오면 그걸, 없으면 숨소리 앞부분으로 대신(없으면 무음) */
-const VOX2={spot:['v_spot','breath_fear',.75],startle:['v_startle','breath_fear',.85],lowhp:['v_lowhp','breath_low',.7],key:['v_key',null],hide:['v_hide',null],kill:['v_kill',null],peep:['v_peep',null]};
+const VOX2={spot:['v_spot','breath_fear',1],startle:['v_startle','breath_fear',1.1],lowhp:['v_lowhp','breath_low',1],key:['v_key',null,1],hide:['v_hide',null,.95],kill:['v_kill',null,1],peep:['v_peep',null,.9],jump:['v_jump','breath_fear',1.15]}; /* 11/7 사용자 김수민 음성 파일 */
 function vo(k,cd=8){if(!AC)return;const now=G.t;G.voT=G.voT||{};if(now-(G.voT[k]||-99)<cd||now-(G.voAny||-99)<2.5)return;const d=VOX2[k];if(!d)return;
   const n=fxOK(d[0])?d[0]:d[1];if(!n||!fxOK(n))return;G.voT[k]=now;G.voAny=now;const h=fx(n,{gain:d[2]||1});if(h&&h.src&&n!==d[0]){try{h.src.stop(h.t+1.0);}catch(e){}}}
 function fxOK(n){return!!(AC&&VB_STATE.ready&&VB.fx&&VB.fx[n]&&VB.fx[n].length);}
@@ -3715,7 +3715,8 @@ function breath(n,o={}){if(!AC)return false;const t=AC.currentTime;if(t<BR.until
   const h=fx(n,{gain:o.gain??1,jit:.03});if(!h||!h.src)return false;BR.h=h;BR.until=t+h.dur-.2;return true;}
 function breathTick(dt,run){if(!AC||P.dead||G.state!=='play')return;
   if(run&&P.moving)BR.runT+=dt;else if(BR.runT>0){if(BR.runT>2.5&&!P.moving)breath('breath_run',{gain:Math.min(1.1,.6+BR.runT/10)}),BR.runT=0;else if(!P.moving)BR.runT=Math.max(0,BR.runT-dt*2);}
-  if(P.hide){BR.hideT=(BR.hideT||0)-dt;if(BR.hideT<=0&&breath('breath_fear',{gain:.9}))BR.hideT=1.5;}
+  if(P.hide){BR.hideT=(BR.hideT||0)-dt;if(BR.hideT<=0&&!G.reveal){const hv=fxOK('v_hiding');if(breath(hv?'v_hiding':'breath_fear',{gain:hv?1:.9}))BR.hideT=hv?1.5+Math.random()*2.5:1.5;}} /* 옷장 안: 김수민 숨죽인 숨소리 */
+  else if(P.peep){BR.pT=(BR.pT??3.5)-dt;if(BR.pT<=0)BR.pT=breath('v_peep',{gain:.85})?4+Math.random()*3:1;} /* 문구멍: 긴장한 숨 */
   else if(P.hp<35){BR.lowT=(BR.lowT||0)-dt;if(BR.lowT<=0){BR.lowT=2+Math.random()*3;breath('breath_low');}}}
 // 환경음: 평온할 때만 30~90초마다(정전 3층·떼거리 2층은 더 자주), 벽 너머 먼 곳에서
 const AMB={t:20};
