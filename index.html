@@ -381,6 +381,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
 #credP .croll .end{margin:120px 0 40vh;font:400 16px "Nanum Myeongjo",serif;color:#d8c8c4;line-height:1.9}
 #credP #credSkip{display:none;position:absolute;right:14px;top:14px;background:rgba(40,28,26,.8);color:#e8dcd8;border:1px solid #5a4440;border-radius:9px;padding:8px 14px;font-size:13px}body.touch #credP #credSkip{display:block}body.touch #credP .cskip .cpc{display:none}
 #credP .cskip{position:absolute;right:16px;bottom:12px;font-size:11px;color:#6d5a56;letter-spacing:.1em}
+#cineBars{position:fixed;inset:0;pointer-events:none;z-index:40}#cineBars i{position:absolute;left:0;right:0;height:0;background:#000;transition:height .35s ease}#cineBars i:first-child{top:0}#cineBars i:last-child{bottom:0}#cineBars.on i{height:12vh}body.cineOn #hud>*:not(#sub),body.cineOn #touchUI,body.cineOn #bossBar,body.cineOn #mono{visibility:hidden!important}
 </style>
 
 <canvas id="view"></canvas>
@@ -420,7 +421,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.35 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.36 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -466,6 +467,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
 <div id="evac" hidden></div>
 <div id="bossBar" hidden><div class="bn" id="bossName"></div><div class="bt"><i id="bossLag"></i><b id="bossFill"></b></div></div>
 <div id="credP" hidden><div class="croll" id="credRoll"></div><div class="cskip">누르고 있으면 빨리 감기<span class="cpc"> · <b>Space</b> 넘어가기</span></div><button id="credSkip" type="button">건너뛰기 ▶</button></div>
+<div id="cineBars" hidden><i></i><i></i></div>
 <div id="introP" class="panel" hidden><div class="box intro"><div id="introText"></div><div class="note">스페이스 · 클릭으로 건너뛰기</div></div></div>
 <div id="pauseP" class="panel" hidden>
   <div class="box"><h2>일시정지</h2><p class="lede">클릭하면 이어서 진행합니다.</p><div id="devRow" style="margin:8px 0 12px;padding:8px;border:1px dashed #6a2a26;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:#c9a9a4"><b style="width:100%">테스트용 (임시) <span id="sndState" style="font-weight:400;opacity:.8"></span></b><button type="button" class="ghost" data-dev="god">무적 켬/끔</button><button type="button" class="ghost" data-dev="10">10F</button><button type="button" class="ghost" data-dev="9">9F</button><button type="button" class="ghost" data-dev="8">8F</button><button type="button" class="ghost" data-dev="7">7F</button><button type="button" class="ghost" data-dev="6">6F</button><button type="button" class="ghost" data-dev="5">5F</button><button type="button" class="ghost" data-dev="4">4F</button><button type="button" class="ghost" data-dev="3">3F</button><button type="button" class="ghost" data-dev="2">2F</button><button type="button" class="ghost" data-dev="1">1F</button></div><div class="vols"><label for="volSfx">효과음</label><input type="range" id="volSfx" data-vol="sfx" min="0" max="100"><label for="volBgm">배경음</label><input type="range" id="volBgm" data-vol="bgm" min="0" max="100"></div><div class="opts"><label>난이도</label><select data-opt="diff"><option value="easy">쉬움 — 적 체력 절반 · 듣는 놈 감지 좁음</option><option value="normal">보통</option><option value="hard">어려움 — 적 체력 1.5배</option></select><em data-optv="diff"></em><label>마우스 감도</label><input type="range" data-opt="sens" min="30" max="250"><em data-optv="sens"></em><label>밝기</label><input type="range" data-opt="gamma" min="70" max="150"><em data-optv="gamma"></em><label>해상도</label><select data-opt="res"><option value="360">360p 픽셀감 강함</option><option value="540">540p 기본</option><option value="720">720p 선명</option><option value="1080">1080p 최고 화질</option></select><em data-optv="res"></em><label class="chk"><input type="checkbox" data-opt="bob"> 걸을 때 시점 흔들림</label><em data-optv="bob"></em><label class="chk"><input type="checkbox" data-opt="lod"> 성능 절약(먼 크리쳐 간략화)</label><em data-optv="lod"></em></div><div class="btns"><button id="resumeBtn">계속하기</button><button id="quitBtn" class="ghost">로비로 나가기</button></div></div>
@@ -2423,7 +2425,7 @@ function hbAxeTick(dt){const K=G.cine,c=K.c;K.t+=dt;const T=K.t,t=T<.1?T:(T<.95?
   c.spine.rotation.x=lerp(-.18*up,.45,lean);c.neck.rotation.x=-c.spine.rotation.x*.75;c.head.rotation.x=-c.spine.rotation.x*.2;
   if(lean>=1&&!K.hit){K.hit=1;pHurt(60,'heavy',true);G.hurt=1;P.kick=1.5;red.style.transition='opacity .14s';red.style.opacity=1;}
   P.pitch=.35-lean*.55+(K.hit?Math.sin(t*45)*.04*Math.max(0,1.1-(t-.54)*1.5):0);
-  if(t>1.35){G.cine=null;P.hp=0;vox.die();die('옷장 문이 벌컥 열렸다. 도끼가 내려찍혔다.','closet');setTimeout(()=>{const r=$('cineRed');if(r){r.style.transition='opacity 1.5s';r.style.opacity=0;}},1800);}}
+  if(t>1.35){G.cine=null;P.hp=0;vox.die();die('옷장 문이 벌컥 열렸다. 도끼가 내려찍혔다.','drum');setTimeout(()=>{const r=$('cineRed');if(r){r.style.transition='opacity 1.5s';r.style.opacity=0;}},1800);}}
 /* 11/7 사용자: 고릴라·대두왕 옷장 처형 — 옷장 안 시점에서 얼굴이 구멍 틈으로 쑥 들어옴 → 문 벌컥 → (고릴라) 몸을 일으켜 두 팔로 내리침 / (대두왕) 얼굴 전체가 보이게 뒤로 젖혔다 박치기 → 빨갛게 → 사망 */
 function stareLight(){const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);hideLight.position.set(P.x+fx*.3,(P.eye||1.55)+.05,P.z+fz*.3);hideLight.intensity=1.5+Math.random()*.25;} /* 처형 직전 빤히 쳐다볼 때 얼굴을 비춤 */
 function bossKillCine(c,kind){const h=P.hide&&P.hide.h;if(!h)return;P.drawing=false;cancelDraw();
@@ -2505,7 +2507,7 @@ const SURV_F={
   4:[['…쉿. 여기 그놈들 소굴이에요. 관리실이 창고였는데… 요새 그 안에서 뭔가 커다란 게 쿵쿵거려요.','바닥에 깡통 줄 쳐 놨어요. 밟으면 다 몰려와요. 웅크려서 넘어가요.','며칠 전에 남자 하나가 잡혀 들어갔는데… 밤에 사라졌대요.'],['문 두드리지 마요. 제발.','그놈들이 우리 먹을 거 다 가져갔어요.']],
   3:[['여긴 불이 다 나갔어요. 아무것도 안 보여요.','우는 소리가 사방에서 나요. 움직이지 마요.','작업대가 어디 있다는 얘기는 들었어요. 동쪽이었나…']],
   2:[['계단은 못 써요. 잔해로 막혔어요.','관리실 바닥에 배관 통로가 있어요. 거기로 1층 가요.','놈들이 떼로 다녀요. 하나가 소리 지르면 다 와요.'],['…1층 현관 전기 나갔대요. 손으로 밀어야 돼요.','열리는 소리 엄청 크대요. 열리면 그냥 뛰어요.']],
-  1:[['여기까지 왔어요? …진짜로?','현관은 남쪽 복도 동쪽 끝이에요. 빨간 불 들어오는 데.','다 같이 나가자고 했는데… 나는 못 나가겠어요. 가요.']],
+  1:[['여기까지 왔어요? …진짜로?','현관 앞에 가면 쓴 놈이 있어요. 새총은 안 먹혀요… 굴러오는 통을 끝까지 피하면 결국 지쳐 쓰러진대요.','현관은 남쪽 복도 동쪽 끝이에요. 빨간 불 들어오는 데.','다 같이 나가자고 했는데… 나는 못 나가겠어요. 가요.']],
   5:[['여기까지 온 거예요? 대단하다.','아래층 비상구는 막혔다는 소문이 있어요. 확인은 못 했어요.','약탈자들이 4층에 본거지를 차렸대요.','…행운을 빌어요. 진심으로.']]};
 // 11/5 사용자: 생존자는 말을 계속 걸면 ① 평소 말 → ② 계단 열쇠 위치 → ③ 작업대 위치 → ④ 지금 필요한 물건을 문틈으로 하나 줌(집마다 한 번)
 function survSay(t,i){const L=survLines(t),kh=keyHint(),bh=benchHintLine();
@@ -2585,7 +2587,7 @@ function updateCrowbar(dt,target){
     advanceTime(CFG.time.crowbar,'빠루 개방');}
 }
 function damagePlayer(n,by,kind){if(P.dead||G.cine)return;kind=kind||(by==='drum'?'drum':by==='gorilla'||by==='bighead'?'heavy':null);if(P.god){G.hurt=.3;pHurt(n,kind);return;} // 테스트용 무적(IDDQD)
-P.hp-=n;G.hurt=1;P.kick=Math.max(P.kick,.4);if(P.hp<=0&&LAST_ATK&&LAST_ATK.type==='listener'&&!LAST_ATK.dead&&!G.cine){P.hp=0;pHurt(n,kind,true);listenerKillCine(LAST_ATK);return;}if(P.hp<=0){P.hp=0;pHurt(n,kind,true);die(by==='gorilla'?'거대한 주먹에 짓이겨졌다.':by==='bighead'?'거대한 머리에 짓눌렸다.':by==='drum'?'드럼통에 깔렸다.':'놈들에게 붙잡혔다.',by||'creature');}else pHurt(n,kind);}
+P.hp-=n;G.hurt=1;P.kick=Math.max(P.kick,.4);if(!by&&LAST_ATK&&LAST_ATK.hidden&&!LAST_ATK.dead)by='drum'; /* 108차: 1층 보스 죽음은 전부 드럼통 엔딩 */if(P.hp<=0&&by!=='drum'&&LAST_ATK&&LAST_ATK.type==='listener'&&!LAST_ATK.dead&&!G.cine){P.hp=0;pHurt(n,kind,true);listenerKillCine(LAST_ATK);return;}if(P.hp<=0){P.hp=0;pHurt(n,kind,true);die(by==='gorilla'?'거대한 주먹에 짓이겨졌다.':by==='bighead'?'거대한 머리에 짓눌렸다.':by==='drum'?'드럼통에 깔렸다.':'놈들에게 붙잡혔다.',by||'creature');}else pHurt(n,kind);}
 
 /* ================= 입력 ================= */
 // 폰 터치 조작(11/6): 왼쪽 = 이동 스틱(끝까지 밀면 달리기) · 오른쪽 = 시점 드래그 · 새총 버튼 누르면 당김/떼면 발사(누른 채 끌면 조준)
@@ -3136,12 +3138,19 @@ const TIPS=[
   {title:'현관문 안쪽에 붙은 메모',text:['나가기 전에 구멍부터 볼 것.','현관문 앞에서 [R] — 문구멍으로 복도가 보인다.','문 앞에 뭐가 서 있으면… 열지 마.']},
   {title:'옷장 문에 끼워진 메모',text:['쫓기면 옷장.','옷장 앞에서 [R]로 숨고 다시 [R]로 나온다.','숨는 걸 들키면 소용없다. 모퉁이를 돌고 나서 숨어.']},
   {title:'복도 바닥에 떨어진 메모',text:['그것들은 소리를 따라간다.','벽이나 문에 한 발 쏘면 그쪽으로 몰려간다.','눈 없는 여자는 발소리까지 듣는다. [C]로 웅크리고 천천히.']},
-  {title:'계단 쪽 벽에 붙은 메모',text:['헤드랜턴([F])은 멀리서도 보인다.','어두운 데선 끄고, 놈들 앞 바닥의 붉은 빛을 피해서.','계단 문 열쇠는 관리 메모에 적힌 집에 있다.']}];
-function placeTips(){if(G.floor!==10)return;G.tipsRead=G.tipsRead||[];
+  {title:'계단 쪽 벽에 붙은 메모',text:['헤드랜턴([F])은 멀리서도 보인다.','어두운 데선 끄고, 놈들 앞 바닥의 붉은 빛을 피해서.','계단 문 열쇠는 관리 메모에 적힌 집에 있다.']},
+  {title:'관리실 옆 벽에 붙은 쪽지',text:['현관 앞에 가면 쓴 게 있다. 파란 정장.','새총은 안 먹힌다. 쏴 봤자 소리만 난다.','굴러오는 드럼통을 끝까지 피해. 계속 피하면 놈이 먼저 지쳐서 쓰러진다.','빨간 원이 보이면 바로 비켜. 기름통이다.']}];
+function placeTips(){if(G.floor===1){placeWallTip1();return;}if(G.floor!==10)return;G.tipsRead=G.tipsRead||[];
   const U2=UNITS.find(u=>u.num===1002),U3=UNITS.find(u=>u.num===1003);
   const spots=[U2&&uMap(U2,U2.W/2,1.4),U3&&uMap(U3,U3.W/2,4.2),TIP_C,[13.5,20.6]];
   spots.forEach((p,i)=>{if(!p)return;let[x,z]=p;if(blockedCircle(x,z,.2)){for(let k=0;k<30;k++){const a=k*2.4,r=.3+k*.06,nx=x+Math.cos(a)*r,nz=z+Math.sin(a)*r;if(!blockedCircle(nx,nz,.2)){x=nx;z=nz;break;}}}
     const m=noteMesh(x,.02,z,i*.7,true);INTER.push({kind:'tip',tip:i,x,z,r:1.4,hy:.12,mesh:m});});}
+/* 108차: 1층 보스 힌트 — 관리실(배관 통로로 내려오는 곳) 바깥 복도 벽에 압정으로 붙인 쪽지 */
+function placeWallTip1(){G.tipsRead=G.tipsRead||[];const U=UNITS.find(u=>u.num==='TPS');if(!U)return;
+  let best=null;for(const du of [1.25,-1.25,1.5,-1.5,.95,-.95]){const[x,z]=uMap(U,U.W/2+du,-.03),[cx,cz]=uMap(U,U.W/2+du,-.5);if(!blockedCircle(cx,cz,.18)){best=[x,z,cx,cz];break;}}
+  if(!best)return;const[x,z,cx,cz]=best;const m=noteMesh(x,1.45,z,0,false);
+  const pin=new THREE.Mesh(new THREE.SphereGeometry(.012,6,4),phong(null,{color:0xb02020,shininess:60}));pin.position.set(x,1.57,z+.01);world.add(pin);
+  INTER.push({kind:'tip',tip:4,x:cx,z:cz,r:1.4,hy:1.45,mesh:m});}
 function openTip(i){const N=TIPS[i];if(!N)return;openNote(null,N);G.tipsRead=G.tipsRead||[];if(!G.tipsRead.includes(i))G.tipsRead.push(i);}
 function openNote(f,TN){const N=TN||NOTES[f];if(!N)return;G.ui='note';G.paused=true;cancelDraw();for(const k in keys)keys[k]=false;if(!TEST&&document.pointerLockElement)document.exitPointerLock();
   $('noteTitle').textContent=N.title;$('noteBody').innerHTML=N.text.map(t=>'<p>'+t+'</p>').join('')+(N.torn?'<p class="torn">(뒤는 찢겨 있다)</p>':'');$('noteP').hidden=false;
@@ -3299,6 +3308,24 @@ function addPool(x,z){if(!OILPOOL_G){OILPOOL_G=new THREE.CircleGeometry(1,28);OI
   m.material.userData.perFloor=true;m.rotation.x=-Math.PI/2;m.position.set(x,.018,z);m.scale.setScalar(HB.oilPool);m.renderOrder=2;world.add(m);POOLS.push({x,z,r:HB.oilPool*.9,t:0,m});}
 function collapseCreature(c){if(c.dead)return;c.dead=true;c.deadT=0;c.state='dead';c.dk='knees';const fx=Math.sin(c.face),fz=Math.cos(c.face);c.fallDir=!wallBetween(c.x,c.z,c.x-fx*1.7,c.z-fz*1.7)?1:!wallBetween(c.x,c.z,c.x+fx*1.7,c.z+fz*1.7)?-1:.55;
   at(c.x,c.z,()=>{nz(.22,120,1,.35,0,'lowpass');tone(80,40,.25,.18,'sine');});}
+/* 108차: 1층 보스 등장 컷신(약 3.2초) — 공동현관 앞 쌓인 파란 드럼통을 배경으로, 위아래 검은 띠 */
+function hbIntroCine(c){drumInit();cancelDraw&&cancelDraw();if(P.peep)exitPeep();if(P.hide)exitHide(true);
+  const z=(ZS0+ZS1)/2,props=[],add=(x,y,zz,lie,ry)=>{const m=new THREE.Mesh(DRUM_G,DRUM_M);m.castShadow=true;m.receiveShadow=true;if(lie){m.rotation.set(0,ry||0,Math.PI/2);}else m.rotation.y=ry||0;m.position.set(x,y,zz);world.add(m);props.push(m);};
+  const bx=BW-1.35;[-.78,-.2,.38,.92].forEach((o,i)=>add(bx+(i%2)*.12,.44,z+o,false,i));[-.5,.1,.66].forEach((o,i)=>add(bx+.06,1.32,z+o,false,i+2));add(bx-.1,2.0,z-.2,false,1);
+  add(bx-.9,.29,z+.95,true,.4);add(bx-1.6,.29,z-.9,true,-.7);add(bx-.55,.29,z-1.0,false,0);
+  const L=hideLight;L.color.setHex(0xff3020);L.distance=8;L.position.set(bx-.5,2.0,z); /* 실행 중 새 조명 추가는 셰이더 재컴파일 → 기존 hideLight 재사용 */
+  G.cine={tick:hbIntroTick,t:0,c,z,props,L,sv:{x:P.x,z:P.z,yaw:P.yaw,pitch:P.pitch,eye:P.eye,crouch:P.crouch}};
+  c.root.visible=true;if(c.glb&&c.geoHi)c.glb.geometry=c.geoHi;c.face=-Math.PI/2;c.rush=0;c.swing=0;c.atkAnim=0;
+  const b=$('cineBars');if(b){b.hidden=false;void b.offsetWidth;b.classList.add('on');}document.body.classList.add('cineOn');fadeIn&&fadeIn(.3);
+  at(bx,z,()=>{nz(1.4,60,1,.4,0,'lowpass');tone(52,30,2.6,.35,'sine');});}
+function hbIntroTick(dt){const K=G.cine,c=K.c;K.t+=dt;const T=K.t,k=Math.min(1,T/3.2),e=k*k*(3-2*k);
+  P.x=c.x-4.9+e*1.7;P.z=K.z+.55-e*.45;P.eye=1.05+e*.3;P.yaw=-Math.PI/2+.1-e*.1;P.pitch=.16-e*.1;P.crouch=false;
+  K.L.intensity=Math.max(0,2.2+Math.sin(T*9)*.7+(Math.random()<.06?-1.6:0));c.face=-Math.PI/2;c.anim+=dt*1.2;
+  if(T>1.7&&!K.raise){K.raise=1;c.atkAnim=.6;at(c.x,c.z,()=>{nz(.5,120,1,.5,0,'lowpass');});}
+  c.root.position.set(c.x,0,c.z);c.root.rotation.y=c.face;poseCreature(c,1);
+  if(T>3.2){const S=K.sv;G.cine=null;K.props.forEach(m=>world.remove(m));K.L.intensity=0;K.L.color.setHex(0xd8c8bc);K.L.distance=3.2;Object.assign(P,{x:S.x,z:S.z,yaw:S.yaw,pitch:S.pitch,eye:S.eye,crouch:S.crouch});
+    const b=$('cineBars');if(b){b.classList.remove('on');setTimeout(()=>{b.hidden=true;},450);}document.body.classList.remove('cineOn');c.state='chase';c.atkAnim=0;fadeIn&&fadeIn(.35);
+    {const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz)||.01;if(d<5){const kk=(5.2-d)/d;moveCircle(P,dx*kk,dz*kk,.22);P.kick=Math.max(P.kick,1);G.hurt=Math.max(G.hurt,.6);at(c.x,c.z,()=>{tone(80,36,.5,.6,'square');nz(.4,200,1,.6,0,'lowpass');});toast('밀쳐졌다!',true);}}}}
 function hiddenBossTick(E,dt){
   if(!E.hb&&E.t>5){E.hb={ph:1,t:0,q:creatures.filter(c=>!c.dead&&c.type!=='raider').map(c=>({c,at:Math.random()*1.4}))};
     at(P.x,P.z,()=>{tone(46,28,2.4,.35,'sine');nz(2.2,70,1,.25,0,'lowpass');});}
@@ -3312,7 +3339,8 @@ function spawnHiddenBoss(){// 공동현관 앞(남복도 동쪽)을 막고 나�
   if(hk){applyShamblerGLB(c,false,hk);c.root.scale.setScalar(HB.scaleM);c.headR=HBJ.headR*HB.scaleM;}
   else{c.root.scale.setScalar(HB.scale);if(c.glb){c.headR=(S2J.headR)*HB.scale;const k=s2Skin();if(!k.mD){k.mD=k.m.clone();k.mD.color.setRGB(.62,.6,.64);}c.glb.material=k.mD;}}
   if(!playVoice(c,'intro',{gain:1.25}))at(x,z,()=>{tone(150,55,1.1,.5,'sawtooth');nz(.9,300,1,.45,0,'lowpass');tone(95,40,1.3,.3,'square');});else at(x,z,()=>{nz(1.2,70,1,.35,0,'lowpass');});
-  say(HB.name,HB.line);toast(HB.name+' — '+HB.line,true);if(!(G.egg&&G.egg.on))setTimeout(()=>mono('hbSeen',{prio:true}),1600);hear(P.x,P.z,99,'step');c.state='chase';G.hiddenBoss=c;
+  say(HB.name,HB.line);toast(HB.name+' — '+HB.line,true);if(!(G.egg&&G.egg.on))setTimeout(()=>mono('hbSeen',{prio:true}),1600+(G.egg&&G.egg.on?0:3200));hear(P.x,P.z,99,'step');c.state='chase';G.hiddenBoss=c;
+  if(!(G.egg&&G.egg.on)&&!P.dead){hbIntroCine(c);return;}
   {const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz)||.01;if(d<5){const k=(5.2-d)/d;moveCircle(P,dx*k,dz*k,.22);P.kick=Math.max(P.kick,1);G.hurt=Math.max(G.hurt,.6);at(c.x,c.z,()=>{tone(80,36,.5,.6,'square');nz(.4,200,1,.6,0,'lowpass');});toast('밀쳐졌다!',true);}}}
 
 /* ================= 이벤트 ================= */
@@ -3979,7 +4007,7 @@ function ending(kind,why){
 $('endBtn').onclick=()=>{startFloor();lockPointer();};
 
 
-function startFloor(){G.cmo=0;G.cmoT=0;G.cmoTold=false;
+function startFloor(){document.body.classList.remove('cineOn');{const b=$('cineBars');if(b){b.classList.remove('on');b.hidden=true;}}G.cmo=0;G.cmoT=0;G.cmoTold=false;
   G.cine=null;{const r=document.getElementById('cineRed');if(r){r.style.transition='none';r.style.opacity=0;}}
   if(!modelsReady(G.floor)){waitModels(G.floor,startFloor);return;}
   if(typeof lobbyMusic==='function')lobbyMusic(false);restore(FLOOR_SAVE);P.dead=false;P.crouch=false;P.kick=0;P.lamp=true;
@@ -3988,7 +4016,7 @@ function startFloor(){G.cmo=0;G.cmoT=0;G.cmoTold=false;
   if(G.floor===10){say('','1002호. 비상계단은 건물 한가운데, 남쪽 복도 쪽에 있다.');toast('목표 · 물자를 챙겨 비상계단으로 (남쪽 복도 가운데)');}
   else{say('',G.floor+'층 비상계단. 다시 아래로 내려갈 계단을 찾아야 한다.');toast(G.floor+'층',true);}
 }
-function warmFloor(){try{if(G.floor===1){const hk=hbSkin();if(hk&&!hk.g.userData.lo)hk.g.userData.lo=lodGeo(hk.g,.03,24);hbFaceTex();if(hk&&renderer.initTexture)[hk.m.map,hk.m.normalMap,hk.m.specularMap].forEach(t=>t&&renderer.initTexture(t));} /* 11/7 1층 보스 모델을 등장 전에 미리 풀어 둠(등장 순간 멈칫 방지) */renderer.compile(scene,camera);const y0=P.yaw;for(let i=0;i<4;i++){P.yaw=y0+i*Math.PI/2;render();}P.yaw=y0;}catch(e){}} // 새 층 버퍼·텍스처를 미리 GPU에 올림
+function warmFloor(){try{if(G.floor===1){drumInit();if(renderer.initTexture&&DRUM_M.map)renderer.initTexture(DRUM_M.map);const hk=hbSkin();if(hk&&!hk.g.userData.lo)hk.g.userData.lo=lodGeo(hk.g,.03,24);hbFaceTex();if(hk&&renderer.initTexture)[hk.m.map,hk.m.normalMap,hk.m.specularMap].forEach(t=>t&&renderer.initTexture(t));} /* 11/7 1층 보스 모델을 등장 전에 미리 풀어 둠(등장 순간 멈칫 방지) */renderer.compile(scene,camera);const y0=P.yaw;for(let i=0;i<4;i++){P.yaw=y0+i*Math.PI/2;render();}P.yaw=y0;}catch(e){}} // 새 층 버퍼·텍스처를 미리 GPU에 올림
 function fadeIn(sec){let d=document.getElementById('fadeK');if(!d){d=document.createElement('div');d.id='fadeK';d.style.cssText='position:fixed;inset:0;background:#000;pointer-events:none;z-index:40;opacity:0';document.body.appendChild(d);}
   d.style.transition='none';d.style.opacity='1';void d.offsetWidth;d.style.transition='opacity '+sec+'s ease-out';d.style.opacity='0';}
 // 11/6 일시정지 → 로비로 나가기(두 번 눌러 확인). 이 층 진행은 버리고 층 진입 시점 저장은 남음
