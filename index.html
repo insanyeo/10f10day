@@ -419,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.20 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.21 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -933,6 +933,13 @@ function decorSleepBed(x,z){const b=ALLBEDS.reduce((m,o)=>{const d=Math.hypot(o.
   const np=Wd>1.25?2:1;for(let i=0;i<np;i++)bx(.3,np>1?Wd*.42:Wd*.7,.12,SBM.pil,hs*(L/2-.22),np>1?(i?1:-1)*Wd*.24:0,top+.05);
   for(const sd of[1,-1]){const[lx,,lz]=P(hs*(L/2-.25),sd*(Wd/2+.16),0);const i=gi(lx,lz);if(i<0||grid[i]!==0)continue;
     const g=new THREE.Mesh(new THREE.CylinderGeometry(.045,.05,.13,10),SBM.lamp);g.position.set(lx,.075,lz);world.add(g);const cp=new THREE.Mesh(new THREE.CylinderGeometry(.052,.052,.03,10),SBM.cap);cp.position.set(lx,.155,lz);world.add(cp);break;}}
+function benchSpot(U){const free=(x0,z0,x1,z1)=>{for(let x=x0+.03;x<x1;x+=.08)for(let z=z0+.03;z<z1;z+=.08){const i=gi(x,z);if(i<0||grid[i]!==0||unitAt(x,z)!==U)return false;}return true;};
+  const beds=ALLBEDS.filter(b=>unitAt(b.x,b.z)===U);const L=1.5,S=.75,g=.06;
+  for(const b of beds){const bx0=b.x-b.w/2,bx1=b.x+b.w/2,bz0=b.z-b.d/2,bz1=b.z+b.d/2;
+    for(const[w,d] of [[L,S],[S,L]]){const zs=[b.z-d/2,bz0,bz1-d],xs=[b.x-w/2,bx0,bx1-w];
+      const c=[];zs.forEach(z=>{c.push([bx1+g,z]);c.push([bx0-g-w,z]);});xs.forEach(x=>{c.push([x,bz1+g]);c.push([x,bz0-g-d]);});
+      for(const[x,z] of c){if(free(x,z,x+w,z+d)&&(free(x-.6,z,x,z+d)||free(x+w,z,x+w+.6,z+d)||free(x,z-.6,x+w,z)||free(x,z+d,x+w,z+d+.6)))return[x,z,x+w,z+d];}}}
+  return null;}
 let BENCHM=null;function benchMats(){if(!BENCHM)BENCHM={top:phong(TX.furn,{color:0x8a6a44}),leg:phong(null,{color:0x2a2a2c}),red:phong(null,{color:0xa8241c,shininess:30,specular:0x302020}),shade:new THREE.MeshPhongMaterial({color:0x2e4a3a,side:THREE.DoubleSide}),glow:new THREE.MeshBasicMaterial({color:0xffd080}),tape:new THREE.MeshPhongMaterial({color:0xe8c020,emissive:0x3a2c00,shininess:10})};return BENCHM;}
 function furn(U,kind,u0,v0,u1,v1,opt={}){
   const F=FURN[kind];const[x0,z0,x1,z1]=U?uRect(U,u0,v0,u1,v1):[u0,v0,u1,v1];const cx=(x0+x1)/2,cz=(z0+z1)/2,w=x1-x0,d=z1-z0,h=opt.h||F.h;
@@ -968,7 +975,8 @@ function furn(U,kind,u0,v0,u1,v1,opt={}){
     case'box':case'toy':add(box(w,h,d,kind==='toy'?phong(TX.fabric,{color:col||0x7a5a4a}):M.box,cx,h/2,cz));if(kind==='box'&&RNG()<.6)add(box(w*.7,h*.6,d*.7,M.box,cx+.02,h+h*.3,cz-.02,RNG()));break;
     case'suitcase':add(box(w,h,d,phong(TX.fabric,{color:col||0x3a4a5a}),cx,h/2,cz));break;
     case'locker':case'rack':add(box(w,h,d,M.metal,cx,h/2,cz));break;
-    case'bench':{const BM=benchMats();add(box(w,.07,d,BM.top,cx,.84,cz));[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>add(box(.06,.8,.06,BM.leg,cx+a*(w/2-.05),.4,cz+b*(d/2-.05),0,false)));add(box(w-.1,.04,d-.1,BM.leg,cx,.22,cz,0,false));
+    case'bench':{const BM=benchMats();add(box(w,.07,d,BM.red,cx,.84,cz));add(box(w+.04,.025,d+.04,BM.top,cx,.795,cz,0,false)); /* 11/7: 상판 빨갛게 */
+      {const along=w>=d;add(box(along?w:.04,.62,along?.04:d,BM.red,along?cx:cx+(w/2-.02),1.18,along?cz+(d/2-.02):cz));} /* 뒤쪽 빨간 공구판 */[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>add(box(.06,.8,.06,BM.leg,cx+a*(w/2-.05),.4,cz+b*(d/2-.05),0,false)));add(box(w-.1,.04,d-.1,BM.leg,cx,.22,cz,0,false));
       add(box(.16,.12,.1,M.lever,cx-w*.2,.94,cz-d*.25,0,false));add(box(.42,.18,.2,BM.red,cx,.31,cz+d*.15));add(box(.3,.16,.18,BM.red,cx+w*.15,.96,cz+d*.22));add(box(.25,.05,.15,M.lever,cx,.9,cz,0,false));
       const st=add(box(.025,.42,.025,BM.leg,cx-w*.3,1.08,cz+d*.3,0,false));const sh=new THREE.Mesh(new THREE.ConeGeometry(.09,.12,10,1,true),BM.shade);sh.position.set(cx-w*.3+.06,1.28,cz+d*.3-.05);sh.rotation.z=.9;world.add(sh);meshes.push(sh);
       const bulb=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),BM.glow);bulb.position.set(cx-w*.3+.09,1.25,cz+d*.3-.06);world.add(bulb);meshes.push(bulb);
@@ -1056,7 +1064,9 @@ function buildUnit(U){
   // 테마
   const th=cfg.theme;const mid=(a,b)=>a+(b-a)*RNG();
   if(th==='own'){furn(U,'desk',.12,5.05,.66,5.95);const[bdx,bdz]=uMap(U,W-.6,D-1.3);INTER.push({kind:'bed',x:bdx,z:bdz,r:1.7,hy:.5});}
-  if(G.benchUnit===U.num){furn(U,'bench',.12,D-2.0,.66,D-1.15);const[bx,bz]=uMap(U,.39,D-1.57);INTER.push({kind:'bench',x:bx,z:bz,r:1.5,hy:.9,max:G.benchMax});}
+  if(G.benchUnit===U.num){const bp=benchSpot(U); /* 11/7 사용자: 침대 옆에 크고 빨갛게(예전엔 옷장 옆에 끼어 안 보였음) */
+    if(bp){furn(null,'bench',bp[0],bp[1],bp[2],bp[3]);INTER.push({kind:'bench',x:(bp[0]+bp[2])/2,z:(bp[1]+bp[3])/2,r:1.7,hy:.9,max:G.benchMax});}
+    else{furn(U,'bench',.12,D-2.0,.66,D-1.15);const[bx,bz]=uMap(U,.39,D-1.57);INTER.push({kind:'bench',x:bx,z:bz,r:1.5,hy:.9,max:G.benchMax});}}
   if(th==='packing'){[2.6,3.1,3.6,4.1].forEach((v,i)=>furn(U,'box',W-.58,v,W-.12,v+.44,{loot:i?'poor':'normal'}));{// 11/6: 캐리어가 침대 속에 묻혀 안 보이던 문제(39㎡ 등) → 비어 있는 바닥 자리를 찾아 놓음
     const free=(u0,v0,u1,v1)=>{const[x0,z0,x1,z1]=uRect(U,u0-.1,v0-.1,u1+.1,v1+.1);let ok=true;fillRect(x0,z0,x1,z1,i=>{if(grid[i]!==0)ok=false;});return ok;};
     const C=[[W-1.6,D-.75],[W-1.25,2.6],[W-1.25,3.4],[.25,D-1.2],[.25,2.4],[W/2-.22,2.2],[W/2-.22,D-1.4],[W-1.6,D-1.6],[.25,3.4]];
