@@ -419,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.24 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.25 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -2281,6 +2281,7 @@ function peepTick(dt){const p=P.peep,d=p.d;if(d.open){exitPeep();return;}const o
 function enterHide(h){if(P.dead||G.reveal)return;vo('hide',10);cancelDraw();
   const saw=new Set();creatures.forEach(c=>{if(c.dead)return;if(c.type==='raider'&&c.mode!=='flee'&&!['fightP','warn'].includes(c.mode)&&canSee(c)){saw.add(c);c.mode='search';c.timer=6;c.goal={x:h.fx,z:h.fz};return;} /* 11/6: 약탈자는 순찰·털이 중이어도 숨는 걸 보면 옷장으로 */
     if((c.gor&&c.awoke)||(c.big&&['chase','closet','bang'].includes(c.state))){const d=Math.hypot(P.x-c.x,P.z-c.z);if(d<14&&!wallBetween(c.x,c.z,P.x,P.z))saw.add(c);c.lsx=h.fx;c.lsz=h.fz;return;} /* 11/6: 깨어난 고릴라·쫓던 대두왕은 보이는 데서 숨으면 '봤음' */
+    c.hideClose=false;if(c.type==='listener'&&!c.dead&&Math.hypot(P.x-c.x,P.z-c.z)<3.2&&!wallBetween(c.x,c.z,P.x,P.z)){saw.add(c);c.hideClose=true;c.lsx=h.fx;c.lsz=h.fz;if(c.state!=='chase'){c.state='go';c.tx=h.fx;c.tz=h.fz;c.path=[];c.repath=0;}c.hsCD=0;return;} /* 11/7: 듣는 놈 코앞(3.2m)에서 옷장 문 열면 바로 들킴 */
     const chasing=c.type==='raider'?['fightP','warn'].includes(c.mode):c.state==='chase';if(!chasing)return;
     const L=c.type==='listener',d=Math.hypot(P.x-c.x,P.z-c.z);if(L?d<12&&!wallBetween(c.x,c.z,P.x,P.z):canSee(c))saw.add(c);c.lsx=h.fx;c.lsz=h.fz;c.lost=.01;c.path=[];});
   P.hide={h,br:1,cd:0,bt:2.2,mm:0,mmT:.5,rs:0,hbT:0};P.x=h.ix;P.z=h.iz;P.yaw=h.yaw;P.pitch=0;P.crouch=false;P.drawing=false;
@@ -2294,12 +2295,12 @@ function hideNoise(amount,r,playerish){const H=P.hide;if(!H)return;H.rs+=amount;
   creatures.forEach(c=>{if(c.dead)return;const L=c.type==='listener',d=Math.hypot(c.x-H.h.cx,c.z-H.h.cz);if(d>r*((c.ct&&c.ct.hear)||1)*(L?1.3*DK().lsHear:1))return;
     if(c.hs){if(c.hs.ph!=='reveal')c.hs.susp+=amount*(L?1.5:1);return;}if(c.hsCD)return;
     if(c.type==='raider'){if(c.mode==='patrol'||c.mode==='loot'){c.mode='search';c.timer=4;c.goal={x:H.h.fx,z:H.h.fz};}return;}
-    if(!['chase','brawl','bang'].includes(c.state)){c.state='go';c.tx=H.h.fx;c.tz=H.h.fz;c.path=[];c.repath=0;c.sawHide=false;}});}
+    if(!['chase','brawl','bang'].includes(c.state)){c.state='go';c.tx=H.h.fx;c.tz=H.h.fz;c.path=[];c.repath=0;if(!c.hideClose)c.sawHide=false;}});}
 function nearHide(c){const h=P.hide.h;return Math.hypot(c.x-h.fx,c.z-h.fz)<4.5&&los(c.x,c.z,h.fx,h.fz);}
 function freeIn(U,r){const[x0,z0,x1,z1]=uRect(U,0,0,U.W,U.D);for(let k=0;k<40;k++){const x=lerp(x0+.5,x1-.5,r()),z=lerp(z0+.5,z1-.5,r());if(!blockedCircle(x,z,.3))return[x,z];}return null;}
 function newHS(c){const h=P.hide.h,rnd=Math.random;const pts=[];if(!c.sawHide)for(let i=0;i<2;i++){const p=freeIn(h.cont.U,rnd);if(p)pts.push(p);} /* 숨는 걸 봤으면 방을 둘러보지 않고 바로 옷장으로 */
   pts.push([h.face[0]+h.nx*.75,h.face[1]+h.nz*.75]);
-  const hs={ph:'move',i:0,t:0,lin:0,susp:c.hidden&&c.sawHide?.90:c.type==='listener'?(c.sawHide?.80:c.doorIn!=null&&G.t-c.doorIn<60?.40:.10):c.type==='raider'?(c.sawHide?.90:.10):.10+(c.sawHide?.30:0),pts}; /* 약탈자: 숨는 걸 봤으면 90% */ /* 11/6 듣는 놈: 숨는 걸 봤으면 80%, 문 뚫고 들어왔으면 40% */if(c.type!=='raider'){c.state='search';}c.path=[];c.repath=0;return hs;}
+  const hs={ph:'move',i:0,t:0,lin:0,susp:c.hidden&&c.sawHide?.90:c.type==='listener'?(c.hideClose?.97:c.sawHide?.80:c.doorIn!=null&&G.t-c.doorIn<60?.40:.10):c.type==='raider'?(c.sawHide?.90:.10):.10+(c.sawHide?.30:0),pts}; /* 약탈자: 숨는 걸 봤으면 90% */ /* 11/6 듣는 놈: 숨는 걸 봤으면 80%, 문 뚫고 들어왔으면 40% */if(c.type!=='raider'){c.state='search';}c.path=[];c.repath=0;return hs;}
 function hideSearch(c,dt){const hs=c.hs,m=dayMul();let mv=0;
   if(hs.ph==='reveal'){hs.t+=dt;const hh=P.hide&&P.hide.h;if(hh)hideLight.position.set(hh.face[0]+hh.nx*.22-hh.nz*.25,1.75,hh.face[1]+hh.nz*.22+hh.nx*.25);hideLight.intensity=.85+Math.random()*.3;c.peek=Math.min(.3,hs.t*1.5);c.headTarget=0;c.atkAnim=0;if(hs.t>1.05)finishReveal(c);return 0;}
   if(!P.hide){c.hs=null;c.peek=0;if(canSee(c))startChase(c);else if(c.type==='raider'){c.mode='search';c.timer=3;c.goal={x:P.x,z:P.z};}else{c.state='search';c.timer=2;}return 0;}
