@@ -225,6 +225,7 @@ button:focus-visible{outline:2px solid var(--blood-hi);outline-offset:2px}
 #vitals.dim #pfName{opacity:0}
 #vitals.dim #pf{opacity:.7}
 #pf{transition:opacity .6s}
+body:not(.touch) #day{font-size:16px!important;color:#efe6da!important}body:not(.touch) #left{font-size:13px!important;color:rgba(232,222,210,.88)!important}body:not(.touch) #clock,body:not(.touch) #vitals,body:not(.touch) #gear{text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.6)}body:not(.touch) .bar{font-size:12px!important;color:rgba(232,222,210,.85)!important}body:not(.touch) .bar i{height:5px!important}body:not(.touch) .bar em{font-size:16px!important;color:#efe6da!important}body:not(.touch) #gear{font-size:14px;color:#e8dfd2}
 #day{font-family:var(--f-body);font-weight:700;font-size:13px;letter-spacing:.16em;color:rgba(232,225,214,.75)}
 #time{font-size:30px;line-height:1}
 #left{font-size:11px;letter-spacing:.06em;color:rgba(200,190,182,.55)}
@@ -418,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.16 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.17 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -3827,7 +3828,7 @@ function hudAuto(){const n=performance.now(),inv=P.inv||{};
   chk('vitals',[Math.round(P.hp),Math.round(P.hunger/5),Math.round(P.thirst/5)].join(),4);
   chk('gear',[P.hasSling,P.tier,P.ammoType,inv[P.ammoType]|0,(P.crowbars||[]).join('.'),inv.flash|0,!!G.hasKey,P.lamp].join(),4);
   chk('clock',[G.day,Math.floor(G.min/30)].join(),4);
-  const keep={vitals:P.hp<35||P.hunger<25||P.thirst<25||(G.hurt||0)>.3,gear:!!P.drawing||(inv[P.ammoType]|0)<5||!!P.crouch||(G.noiseLv||0)>5,clock:CFG.deadlineMin-G.min<1440||(typeof TOUCH!=='undefined'&&TOUCH)}; /* 11/7 폰: 층·날짜·남은 시간 항상 */
+  const PCm=!(typeof TOUCH!=='undefined'&&TOUCH);const keep={vitals:PCm||P.hp<35||P.hunger<25||P.thirst<25||(G.hurt||0)>.3,gear:PCm||!!P.drawing||(inv[P.ammoType]|0)<5||!!P.crouch||(G.noiseLv||0)>5,clock:true}; /* 11/7 사용자: PC는 층·날짜·체력·장비 항상 표시, 폰도 시계 항상 */ /* 11/7 폰: 층·날짜·남은 시간 항상 */
   for(const id of ['vitals','gear','clock']){const e=$(id);if(e)e.classList.toggle('dim',!(keep[id]||n<(HV.t[id]||0)));}
 }
 function updateHUD(){
