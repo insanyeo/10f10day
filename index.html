@@ -418,7 +418,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.14 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.15 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -2305,7 +2305,7 @@ function hideSearch(c,dt){const hs=c.hs,m=dayMul();let mv=0;
 function peekCrouch(c){const pk=Math.min(1,c.peek/.3);c.neck.rotation.x=lerp(c.neck.rotation.x,-c.spine.rotation.x+.08,pk);c.head.rotation.z*=1-pk;c.root.updateMatrixWorld(true);c.hm.getWorldPosition(_v);const dy=clamp((_v.y-1.55)*Math.min(1,c.peek/.3),0,.5);if(dy<=0)return;
   c.hips.position.y-=dy;const k=clamp(dy/.45,0,1);c.legs.forEach(l=>{l.up.rotation.x=-1.0*k;l.kn.rotation.x=1.7*k;});}
 /* 11/7 사용자 효과음 '들킴'(spotted): 크리쳐·보스·약탈자에게 들킬 때(옷장 포함). 복도에서 들키면 이 소리 먼저 → 0.7초 뒤 추격 BGM */
-function spotted(force){if(!force&&G.t-(G.spotT??-99)<3)return false;G.spotT=G.t;fx('spotted',{gain:1.35});duck(.18,.7);G.spotHold=G.t+.7;return true;}
+function spotted(force){if(!force&&G.t-(G.spotT??-99)<3)return false;G.spotT=G.t;fx('spotted',{gain:1.1});G.spotHold=G.t+.55;return true;}
 function jumpScare(sp){if(G.t-(G.jsT??-99)<1.2)return;G.jsT=G.t;if(sp)spotted(true);else fx('jumpscare',{gain:1.7});P.kick=Math.max(P.kick,.6);} /* 11/7 사용자 효과음: 옷장 들킴·문 열자마자 코앞 크리쳐 */
 function revealHide(c){vo('startle',3);jumpScare(1);const h=P.hide.h;G.reveal={c};c.hs={ph:'reveal',t:0};c.x=h.face[0]+h.nx*.92-h.nz*.05;c.z=h.face[1]+h.nz*.92+h.nx*.05;c.face=Math.atan2(-h.nx,-h.nz);c.headYaw=0;c.headTarget=0;c.peek=0;
   if(c.root){c.root.position.set(c.x,0,c.z);c.root.visible=true;}P.yaw=h.yaw;P.pitch=0;P.kick=.7;
@@ -3149,7 +3149,7 @@ function drumInit(){if(DRUM_G)return;DRUM_G=new THREE.CylinderGeometry(.29,.29,.
     DRUM_M=new THREE.MeshPhongMaterial({map:TT(cv),shininess:40,specular:0x223344});}
 function rollDrum(c,ux,uz){drumInit();
   const m=new THREE.Mesh(DRUM_G,DRUM_M);m.castShadow=true;const x=c.x+ux*.8,z=c.z+uz*.8;m.position.set(x,.29,z);world.add(m);
-  const D={x,z,ux,uz,m,rot:0,snd:0,boss:c,spd:HB.drumSpd*(c.ph2?HB.ph2Spd:1)};DRUMS.push(D);duck(.5,.6);
+  const D={x,z,ux,uz,m,rot:0,snd:0,boss:c,spd:HB.drumSpd*(c.ph2?HB.ph2Spd:1)};DRUMS.push(D);duck(.8,.4);
   if(fx('drum_launch',{x:c.x,z:c.z}).src)D.ch=fxLoop('drum_roll',{rate:clamp(D.spd/HB.drumSpd,.9,1.3)});else at(c.x,c.z,()=>{nz(.3,400,1,.4,0,'lowpass');tone(140,70,.3,.25,'square');});}
 function updateDrums(dt){for(let i=DRUMS.length-1;i>=0;i--){const D=DRUMS[i];const st=(D.spd||HB.drumSpd)*dt;D.x+=D.ux*st;D.z+=D.uz*st;D.rot+=st/.29;
     D.m.position.set(D.x,.29,D.z);D.m.rotation.set(0,0,0);D.m.rotation.y=Math.atan2(D.ux,D.uz);D.m.rotateZ(Math.PI/2);D.m.rotateY(D.rot);
@@ -3195,7 +3195,7 @@ function throwOil(c){drumInit();
   const fill=new THREE.Mesh(new THREE.CircleGeometry(HB.oilR,32),new THREE.MeshBasicMaterial({color:0xff1010,transparent:true,opacity:0,depthWrite:false}));fill.material.userData.perFloor=true;fill.rotation.x=-Math.PI/2;fill.position.set(tx,.035,tz);fill.renderOrder=3;world.add(fill);
   const m=new THREE.Mesh(DRUM_G,DRUM_M);m.castShadow=true;world.add(m);
   const fx=Math.sin(c.face),fz=Math.cos(c.face);
-  OILS.push({x0:c.x+fx*.5,z0:c.z+fz*.5,x:tx,z:tz,t:0,m,ring,fill,boss:c});c.atkAnim=.8;duck(.5,.6);
+  OILS.push({x0:c.x+fx*.5,z0:c.z+fz*.5,x:tx,z:tz,t:0,m,ring,fill,boss:c});c.atkAnim=.8;duck(.8,.4);
   if(!globalThis.fx('oil_throw',{x:c.x,z:c.z}).src)at(c.x,c.z,()=>{nz(.35,300,1,.4,0,'lowpass');tone(120,60,.35,.3,'square');});}
 function updateOils(dt){
   for(let i=OILS.length-1;i>=0;i--){const O=OILS[i];O.t+=dt;const k=Math.min(1,O.t/HB.oilT);
@@ -3277,7 +3277,9 @@ function update(dt){
   /* 11/6 마주침: 화면 앞쪽(±40°)·12m 안·벽에 안 가린 크리쳐를 처음 보면 즉시 긴장 + 짧은 충격음(같은 놈 25초에 한 번). 놈이 나를 보면(추격) 바로 전투 BGM */
   {const fx_=-Math.sin(P.yaw),fz_=-Math.cos(P.yaw);for(const c of creatures){c.seenP=false;if(c.dead||P.hide||P.peep)continue;const dx=c.x-P.x,dz=c.z-P.z,d=Math.hypot(dx,dz);if(d>12||d<.3)continue;if((dx*fx_+dz*fz_)/d<.76)continue;if(!los(P.x,P.z,c.x,c.z))continue;c.seenP=true;
     if(c.state!=='chase'&&G.t-(c.stingT||-99)>25&&G.t-(G.stingAny||-99)>4){c.stingT=G.t;G.stingAny=G.t;if(typeof stinger==='function')stinger(d);}}}
-  for(const c of creatures){const aw=!c.dead&&!P.dead&&(c.state==='chase'||(c.type==='raider'&&(c.mode==='warn'||c.mode==='fightP')));if(aw&&!c.awP&&!G.cine&&!G.reveal&&G.state==='play')spotted();c.awP=aw;}
+  /* 11/7: 들킴 소리는 '아무도 날 안 노리던 상태 → 누군가 알아챔'일 때만(싸움 중 다른 놈이 붙을 때마다 울리지 않게). 4초 넘게 아무도 안 노려야 다음 들킴으로 침 */
+  {let any=false,fresh=false;for(const c of creatures){const aw=!c.dead&&!P.dead&&(c.state==='chase'||(c.type==='raider'&&(c.mode==='warn'||c.mode==='fightP')));if(aw){any=true;if(!c.awP)fresh=true;}c.awP=aw;}
+   if(any){if(fresh&&G.t-(G.awLast??-99)>4&&!G.cine&&!G.reveal&&G.state==='play')spotted(true);G.awLast=G.t;}}
   let blvl=chase||G.hurt>.5&&!P.dead?2:0;if(!blvl){for(const c of creatures){if(c.dead)continue;const d=Math.hypot(c.x-P.x,c.z-P.z);
     if((c.type==='raider'&&(c.mode==='warn'||c.mode==='fightP'))){blvl=2;break;}
     if(c.seenP)blvl=1;
@@ -3446,7 +3448,7 @@ function bgmFileTick(dt,L){const t=AC.currentTime,A=BGMF;
   A.ag.gain.setTargetAtTime(L===2?.15:L===1?.95:1.3,t,L===2?.12:1.5);
   if(!A.aCur||t>A.aCur.end-A.AXF){const k=bgmPick(A.aOrd,A.amb.length,A.aLast);A.aLast=k;A.aCur=bgmPlay(A.ag,A.amb[k],A.aCur?A.AXF:3,1);}
   // 전투 줄
-  if(L===2){if(!A.cOn){A.cOn=true;A.cg.gain.cancelScheduledValues(t);A.cg.gain.setValueAtTime(Math.max(.35,A.cg.gain.value),t);A.cg.gain.setTargetAtTime(1,t,.06);}A.cOff=0;} /* 11/6: 들키는 순간 바로 터지게(예전 0.2초 시정수 + 0.5초 페이드) */
+  if(L===2){if(!A.cOn){A.cOn=true;A.cg.gain.cancelScheduledValues(t);A.cg.gain.setValueAtTime(Math.max(.35,A.cg.gain.value),t);A.cg.gain.setTargetAtTime(1.35,t,.06);}A.cOff=0;} /* 11/6: 들키는 순간 바로 터지게(예전 0.2초 시정수 + 0.5초 페이드) */
   else if(A.cOn){A.cOn=false;A.cg.gain.cancelScheduledValues(t);A.cg.gain.setTargetAtTime(0,t,1);}
   if(!A.cOn&&A.cCur){A.cOff+=dt;if(A.cOff>12){bgmFadeOut(A.cCur,.5);A.cCur=null;}}
   if(A.cOn&&(!A.cCur||t>A.cCur.end-A.CXF)){const k=bgmPick(A.cOrd,A.cmb.length,A.cLast);A.cLast=k;const old=A.cCur;A.cCur=bgmPlay(A.cg,A.cmb[k],old?A.CXF:.05,1);if(old)bgmFadeOut(old,A.CXF);}}
@@ -3661,7 +3663,7 @@ const HURTFX={slash:'hurt_slash',bite:'hurt_bite',glass:'hurt_glass',drum:'drum_
 {const _d=vox.die.bind(vox),_h=vox.hurt.bind(vox);
  vox.die=function(){const now=AC?AC.currentTime:0;if(now-(vox._dieT||-9)<1.5)return;vox._dieT=now;const h=fx('hurt_die',{gain:1.1});if(!h||!h.src)_d();};
  vox.hurt=function(big){const h=fx(big?'hurt_mid':'hurt_light',{jit:.04});if(!h||!h.src)_h(big);};}
-function pHurt(n,kind,dead){duck(.4,.5);const imp=HURTFX[kind]||'hurt_hit';
+function pHurt(n,kind,dead){duck(.72,.35);const imp=HURTFX[kind]||'hurt_hit';
   const ok=fx(imp,{gain:Math.min(1.3,.75+n/40),rate:kind==='heavy'||kind==='bat'?.85:kind==='spit'?1.2:1});if(!ok||!ok.src)sfx.hurt();
   const now=AC?AC.currentTime:0;if(!dead&&now-(pHurt.vt||0)<.6)return true;pHurt.vt=now;
   if(dead){vox.die();return true;}const v=P.hp<30?'hurt_low':n>=14?'hurt_mid':'hurt_light';const h=fx(v,{delay:.03,jit:.04});
