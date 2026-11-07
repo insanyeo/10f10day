@@ -417,7 +417,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.10 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.11 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1943,8 +1943,8 @@ const FLOOR_TAG={10:'처음부터 · 인트로',9:'',8:'보스 · 큰 머리',7:
 function renderFloorPick(){const box=$('floorGrid');if(!box)return;box.innerHTML='';const low=META.esc>=1?1:(META.reach||10);for(let f=10;f>=low;f--){const b=document.createElement('button');b.type='button';b.innerHTML='<b>'+f+'F</b><span>'+(FLOOR_TAG[f]||'')+'</span>'+(f<10?'<span>새총 · '+CFG.sling[floorKit(f).tier].name+'</span>':'');b.onclick=()=>{$('mFloor').hidden=true;startAt(f);};box.appendChild(b);}}
 /* 난이도를 바꾸면 진행 중인 판은 난이도 칭호 대상에서 빠짐 */
 function diffChanged(){if(G.run&&G.run.d!==OPT.diff){if(G.run.full&&G.state==='play')toast('난이도를 바꿔서 이번 판은 난이도 칭호에서 빠집니다',true);G.run.full=false;}if(FLOOR_SAVE&&FLOOR_SAVE.run&&FLOOR_SAVE.run.d!==OPT.diff)FLOOR_SAVE.run.full=false;
-  try{const o=JSON.parse(localStorage.getItem('f10_save')||'null');if(o&&o.s&&o.s.run&&o.s.run.d!==OPT.diff){o.s.run.full=false;localStorage.setItem('f10_save',JSON.stringify(o));}}catch(e){}}
-function startAt(F){if(F===10){lobbyAct('new10');return;}G.floor=F;FLOOR_SAVE=floorKit(F);FLOOR_SAVE.run={d:OPT.diff,full:false};try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:F,s:FLOOR_SAVE}));}catch(e){}
+  ['f10_save','f10_best'].forEach(K=>{try{const o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.s&&o.s.run&&o.s.run.d!==OPT.diff){o.s.run.full=false;localStorage.setItem(K,JSON.stringify(o));}}catch(e){}});}
+function startAt(F){if(F===10){lobbyAct('new10');return;}G.floor=F;FLOOR_SAVE=floorKit(F);FLOOR_SAVE.run={d:OPT.diff,full:false};try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:F,s:FLOOR_SAVE}));}catch(e){}bestUpdate(F,FLOOR_SAVE);
   $('titleP').hidden=true;if(typeof prewarm==='function')prewarm();startFloor();fadeIn(.8);lockPointer();setTimeout(()=>{if(!locked)toast('화면을 클릭하면 시점 조작이 시작됩니다');},400);}
 /* ================= 약탈자 (사람, 7층부터) =================
    빠따 든 놈(근접) + 던지는 놈(병·돌)이 짝으로 다닌다. 세대를 돌며 상자를 털고, 김수민을 보면 먼저 경고한 뒤 덤빈다.
@@ -3769,7 +3769,7 @@ function hudAuto(){const n=performance.now(),inv=P.inv||{};
   chk('vitals',[Math.round(P.hp),Math.round(P.hunger/5),Math.round(P.thirst/5)].join(),4);
   chk('gear',[P.hasSling,P.tier,P.ammoType,inv[P.ammoType]|0,(P.crowbars||[]).join('.'),inv.flash|0,!!G.hasKey,P.lamp].join(),4);
   chk('clock',[G.day,Math.floor(G.min/30)].join(),4);
-  const keep={vitals:P.hp<35||P.hunger<25||P.thirst<25||(G.hurt||0)>.3,gear:!!P.drawing||(inv[P.ammoType]|0)<5||!!P.crouch||(G.noiseLv||0)>5,clock:CFG.deadlineMin-G.min<1440};
+  const keep={vitals:P.hp<35||P.hunger<25||P.thirst<25||(G.hurt||0)>.3,gear:!!P.drawing||(inv[P.ammoType]|0)<5||!!P.crouch||(G.noiseLv||0)>5,clock:CFG.deadlineMin-G.min<1440||(typeof TOUCH!=='undefined'&&TOUCH)}; /* 11/7 폰: 층·날짜·남은 시간 항상 */
   for(const id of ['vitals','gear','clock']){const e=$(id);if(e)e.classList.toggle('dim',!(keep[id]||n<(HV.t[id]||0)));}
 }
 function updateHUD(){
@@ -3824,7 +3824,7 @@ function ending(kind,why){
   $('endBtn').textContent=kind==='dead'?G.floor+'층 처음부터 다시':kind==='fail'?G.floor+'층 처음부터 다시 (하루 남김)':'10층 처음부터';
   if(kind==='escape'&&typeof metaAdd==='function'){if((G.notesRead||[]).length>=Object.keys(NOTES).length)metaAdd('esc_notes');metaAdd('esc');if(G.run&&G.run.full&&G.run.d===OPT.diff)metaAdd('esc_'+OPT.diff); /* 11/6: 10층→1층 같은 난이도로만 */}
   $('endCred').hidden=kind!=='escape';if(kind==='escape'){const st=G.min;setTimeout(()=>{if(G.state==='end'&&!$('endP').hidden&&$('credP').hidden)openCredits();},15000);}
-  if(kind!=='dead'&&kind!=='fail'){FLOOR_SAVE=initialSave();G.floor=10;try{localStorage.removeItem('f10_save');}catch(e){}}
+  if(kind!=='dead'&&kind!=='fail'){FLOOR_SAVE=initialSave();G.floor=10;try{localStorage.removeItem('f10_save');localStorage.removeItem('f10_best');}catch(e){}}
   updateLogo();
   $('endP').hidden=false;$('hud').hidden=true;
 }
@@ -3867,11 +3867,17 @@ function fixSave(s){const d=initialSave(),o=Object.assign({},d,s||{});const num=
   o.inv=Object.assign({},(s&&s.inv&&typeof s.inv==='object')?s.inv:d.inv);for(const k in o.inv){if(!Number.isFinite(+o.inv[k])||o.inv[k]<0)delete o.inv[k];else o.inv[k]=Math.floor(+o.inv[k]);}
   o.notes=Array.isArray(o.notes)?o.notes.filter(n=>NOTES[n]):[];o.crowbars=Array.isArray(o.crowbars)?o.crowbars.filter(n=>Number.isFinite(+n)&&n>0).map(n=>+n):[];
   o.tier=Math.round(num(o.tier,0,3,0));o.ammoType=o.ammoType==='junk'?'junk':'steel';o.kills=Math.round(num(o.kills,0,1e6,0));o.hasSling=(s&&'hasSling' in s)?s.hasSling!==false:true;o.shoes=!!o.shoes;return o;}
-function readSave(){let o=null;try{o=JSON.parse(localStorage.getItem('f10_save')||'null');}catch(e){o='bad';}
+function parseSave(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'null');}catch(e){o='bad';}
   if(o===null)return null;const F=o&&Math.round(+o.floor);
-  if(o==='bad'||!o.s||typeof o.s!=='object'||!(F>=1&&F<=10)){try{localStorage.removeItem('f10_save');}catch(e){}G.saveBroken=true;return null;}
-  const s=fixSave(o.s);if(o.v!==SAVE_V){try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:F,s}));}catch(e){}}return{v:SAVE_V,floor:F,s};}
-function saveGame(){try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:G.floor,s:FLOOR_SAVE}));}catch(e){}}
+  if(o==='bad'||!o.s||typeof o.s!=='object'||!(F>=1&&F<=10)){try{localStorage.removeItem(key);}catch(e){}if(key==='f10_save')G.saveBroken=true;return null;}
+  return{v:SAVE_V,floor:F,s:fixSave(o.s),old:o.v!==SAVE_V};}
+/* 11/7: 이어하기 = 가장 깊이 내려갔던 층(그 층에 들어설 때의 가방·상태 그대로). f10_best에 가장 깊은 층 진입 저장을 따로 둠, 탈출하면 지움 */
+function readSave(){const a=parseSave('f10_save'),b=parseSave('f10_best');let r=a;
+  if(b&&(!a||b.floor<a.floor))r=b;if(!r)return null;
+  if(r!==a||r.old){try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:r.floor,s:r.s}));}catch(e){}}
+  return{v:SAVE_V,floor:r.floor,s:r.s};}
+function bestUpdate(F,S){try{const b=parseSave('f10_best');if(!b||F<=b.floor)localStorage.setItem('f10_best',JSON.stringify({v:SAVE_V,floor:F,s:S}));}catch(e){}}
+function saveGame(){try{localStorage.setItem('f10_save',JSON.stringify({v:SAVE_V,floor:G.floor,s:FLOOR_SAVE}));}catch(e){}bestUpdate(G.floor,FLOOR_SAVE);}
 function loadGame(){return readSave();}
 /* 섬광탄(11/5 사용자): G로 던짐 → 1.1초 뒤(또는 바닥에 닿고 0.4초) 터짐 → 반경 6m 안, 벽에 안 가린 크리쳐·약탈자 5초 기절(보스는 2.5초). 큰 소리라 멀리 있는 놈은 몰려옴 */
 const FLASHES=[];let FLASH_G=null,FLASH_M=null;
