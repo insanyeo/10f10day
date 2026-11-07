@@ -420,7 +420,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.34 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.35 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -943,7 +943,11 @@ function benchSpot(U){const free=(x0,z0,x1,z1)=>{for(let x=x0+.03;x<x1;x+=.08)fo
   return null;}
 let BENCHM=null;function benchMats(){if(!BENCHM)BENCHM={top:phong(TX.furn,{color:0x8a6a44}),leg:phong(null,{color:0x2a2a2c}),red:phong(null,{color:0xa8241c,shininess:30,specular:0x302020}),shade:new THREE.MeshPhongMaterial({color:0x2e4a3a,side:THREE.DoubleSide}),glow:new THREE.MeshBasicMaterial({color:0xffd080}),tape:new THREE.MeshPhongMaterial({color:0xe8c020,emissive:0x3a2c00,shininess:10})};return BENCHM;}
 function furn(U,kind,u0,v0,u1,v1,opt={}){
-  const F=FURN[kind];const[x0,z0,x1,z1]=U?uRect(U,u0,v0,u1,v1):[u0,v0,u1,v1];const cx=(x0+x1)/2,cz=(z0+z1)/2,w=x1-x0,d=z1-z0,h=opt.h||F.h;
+  const F=FURN[kind];let[x0,z0,x1,z1]=U?uRect(U,u0,v0,u1,v1):[u0,v0,u1,v1];
+  if(kind==='box'){const hit=(a,b,c,d,lim)=>{let n=0;fillRect(a+.01,b+.01,c-.01,d-.01,i=>{const g=grid[i];if(g===1||g===2||(lim&&g===3))n++;});return n;}; /* 11/7 사용자: 방 안 택배상자가 벽에 끼어 있던 것 → 벽·문과 겹치면 가까운 빈자리로 밀어 놓음 */
+    if(hit(x0,z0,x1,z1,false)){let best=null;for(let r=.05;r<=.8&&!best;r+=.05)for(const[dx,dz]of[[r,0],[-r,0],[0,r],[0,-r],[r,r],[r,-r],[-r,r],[-r,-r]]){if(!hit(x0+dx,z0+dz,x1+dx,z1+dz,true)&&(!U||unitAt((x0+x1)/2+dx,(z0+z1)/2+dz)===U)){best=[dx,dz];break;}}
+      if(best){x0+=best[0];x1+=best[0];z0+=best[1];z1+=best[1];}}}
+  const cx=(x0+x1)/2,cz=(z0+z1)/2,w=x1-x0,d=z1-z0,h=opt.h||F.h;
   if(kind==='bed'||kind==='kbed')ALLBEDS.push({x:cx,z:cz,w,d,h});
   if((kind==='bed'||kind==='kbed')&&U&&U.num!==1002&&(UCFG[U.num]||{}).door!=='survivor')BEDS.push({x:cx,z:cz,w,d});
   fillRect(x0,z0,x1,z1,i=>{if(grid[i]===0){grid[i]=3;furnH[i]=h;furnK[i]=MK_ID[F.mk];}});
