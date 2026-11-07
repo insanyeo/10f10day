@@ -418,7 +418,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.15 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.16 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -3607,16 +3607,16 @@ function voiceChan(c){if(!AC)return null;if(c.vch)return c.vch;const g=AC.create
   c.vch={g,p,lp,src:null,until:0,step:null};updateVoice(c,true);return c.vch;}
 function updateVoice(c,now){const v=c.vch;if(!v||!AC)return;const dx=c.x-P.x,dz=c.z-P.z,d=Math.hypot(dx,dz);
   if(!now){c.vtk=(c.vtk||0)+1;if(c.vtk%3)return;if(d>25){if(v.far)return;v.far=1;}else v.far=0;} /* 11/6 최적화: 3프레임에 한 번 · 들리지 않는 거리면 한 번만 0으로 */
-  const gain=Math.pow(Math.max(0,1-d/24),1.5)*1.35;const rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);const pan=clamp((dx*rx+dz*rz)/(d||1),-1,1)*.85;
+  const LR=c.type==='listener'?32:24;const gain=Math.pow(Math.max(0,1-d/LR),1.5)*1.35; /* 11/7 사용자: 듣는 놈 소리 크게(+5.6dB)·멀리(32m)·조금 낮게 */const rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);const pan=clamp((dx*rx+dz*rz)/(d||1),-1,1)*.85;
   const blocked=d>1.2&&!los(P.x,P.z,c.x,c.z);const t=AC.currentTime,k=now?.001:.08;
-  v.g.gain.setTargetAtTime(gain,t,k);v.p.pan.setTargetAtTime(pan,t,k);v.lp.frequency.setTargetAtTime(blocked?650:16000,t,k);}
+  v.g.gain.setTargetAtTime(gain,t,k);v.p.pan.setTargetAtTime(pan,t,k);v.lp.frequency.setTargetAtTime(blocked?(c.type==='listener'?1100:650):16000,t,k);}
 function voicePlaying(c){return!!(c.vch&&c.vch.src&&AC&&AC.currentTime<c.vch.until);}
 function stopVoice(c,fade=.05){const v=c.vch;if(!v||!v.src||!AC)return;const t=AC.currentTime;try{v.src._g.gain.setTargetAtTime(0,t,fade/3);v.src.stop(t+fade+.05);}catch(e){}v.src=null;v.until=0;}
 function playVoice(c,cat,o={}){
   if(!AC||!VB_STATE.ready)return false;const vt=c.vt||c.type;const list=VB[vt]&&VB[vt][cat];if(!list||!list.length)return false;
   const ch=voiceChan(c);let i=Math.floor(Math.random()*list.length);if(list.length>1&&i===c['last_'+cat])i=(i+1)%list.length;c['last_'+cat]=i;
-  const buf=list[i],src=AC.createBufferSource(),g=AC.createGain();src.buffer=buf;const rate=c.pitch*(o.rate||1)*(1+(Math.random()-.5)*.04);src.playbackRate.value=rate;
-  g.gain.value=(o.gain==null?1:o.gain)*(c.vgain||1);src.connect(g);g.connect(ch.g);src._g=g;const t=AC.currentTime;
+  const buf=list[i],src=AC.createBufferSource(),g=AC.createGain();src.buffer=buf;const rate=c.pitch*(o.rate||1)*(c.type==='listener'?.94:1)*(1+(Math.random()-.5)*.04);src.playbackRate.value=rate;
+  g.gain.value=(o.gain==null?1:o.gain)*(c.vgain||1)*(c.type==='listener'?1.9:1);src.connect(g);g.connect(ch.g);src._g=g;const t=AC.currentTime;
   if(cat==='step'){src.start(t);return true;} // 발소리는 목소리를 끊지 않는다
   if(ch.src)stopVoice(c,.03);src.start(t);ch.src=src;ch.until=t+buf.duration/rate;return true;}
 const SAY_GAIN={idle:.85,alert:1,attack:1,hurt:.95,die:1};
