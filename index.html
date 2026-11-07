@@ -421,7 +421,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.39 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.40 · 2026.11.08</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1245,7 +1245,7 @@ function spawnCreature(x,z,state,face=Math.random()*6.28,type='shambler'){
 /* ================= 8층 보스: 큰 머리(11/5 사용자 친구 얼굴, Tripo 3면 → bhg/mk 스크립트) =================
    몸 없이 머리 하나가 통통 튀어 다닌다. 느리고 체력이 높음. 멀리선 침 뱉기(맞으면 몸이 무거워짐), 가까우면 박치기 돌진.
    문·좁은 곳은 말랑하게 찌그러져 통과(벽 뚫림 방지). 얼굴(눈·코·입) = 머리 판정, 나머지 = 몸통 판정 */
-const BH={hp:1600,scale:1.95,hop:.44,ground:.19,hopH:.5,hopDist:2.66, /* 11/7 사용자: 이속 2배 두 번(약 1.8→3.6m/s)·체력 800→1600 */spitR:[3.2,13],spitCd:2.8,spitSpd:9.5,spitDmg:8,slowT:3,slowK:.55,
+const BH={hp:1600,scale:1.95,hop:.44,ground:.19,hopH:.5,hopDist:1.33, /* 11/8 사용자: 이속 절반(약 3→1.5m/s)·체력 1600 */spitR:[3.2,13],spitCd:2.8,spitSpd:9.5,spitDmg:8,slowT:3,slowK:.55,
   butR:3.0,butWind:.7,butSpd:7.5,butT:.55,butDmg:28,butCd:3.6,dazeT:1.6,atkCd:2.2};
 const SPITS=[];let BHGEO=null,BHMAT=null,SPIT_G=null,SPIT_M=null,SPLAT_M=null;
 function bhGeo(){if(BHGEO||!ASSET.bhGeo)return BHGEO;const m=ASSET.bhMeta,nv=m.nv,ni=m.ni;let u8;const b64=ASSET.bhGeo;if(b64 instanceof ArrayBuffer)u8=new Uint8Array(b64.slice(0));else{const bs=atob(b64);u8=new Uint8Array(bs.length);for(let i=0;i<bs.length;i++)u8[i]=bs.charCodeAt(i);}
