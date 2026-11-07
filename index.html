@@ -420,7 +420,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.33 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.34 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1921,7 +1921,7 @@ function makeRunner(c){c.runner=true;c.hp=Math.round(c.hp*RUN_K.hp);c.maxHp=c.hp
 function killCreature(c,dir,byNPC){c.dead=true;c.deadT=0;pickDeath(c);if(!byNPC){const mk=c.hidden?'hb':c.gor?'gor':c.big||c.type==='brute'?'big':c.type==='raider'?(c.role==='thrower'?'thr':'pipe'):c.type==='listener'?'ls':c.type==='shambler'?'sh':null;if(mk)metaAdd(mk);}{const fx=Math.sin(c.face),fz=Math.cos(c.face),L=c.type==='listener'?2:1.7;c.fallDir=!wallBetween(c.x,c.z,c.x-fx*L,c.z-fz*L)?1:!wallBetween(c.x,c.z,c.x+fx*L,c.z+fz*L)?-1:.55;}if(!byNPC){G.kills++;if(!c.hidden&&!c.gor&&!c.boss)setTimeout(()=>vo('kill',25),450);}if(c.hidden){G.hbDown=true;G.postShots=0;if(!playVoice(c,'intro',{gain:1.3}))creatureSay(c,'die');say(HB.name,HB.line);mono('killHidden',{prio:true});dropPickup('bandage',2,c.x+.3,c.z);dropPickup('steel',8,c.x-.3,c.z);}else if(c.gor){if(G.keyBy==='gorilla')dropPickup('stairKey',1,c.x+.5,c.z+.3);dropPickup('steel',10,c.x-.5,c.z);dropPickup('painkiller',1,c.x,c.z+.5);dropPickup('mat',3,c.x,c.z-.5);mono('killGorilla',{prio:true});}else if(c.boss){dropPickup('sling1',1,c.x,c.z);if(G.keyBy==='boss')dropPickup('stairKey',1,c.x+.4,c.z+.2);mono('killBoss',{prio:true});}
   if(c.hidden)hbMaskBreak(c);
   if(c.type==='raider'){raiderDrop(c);creatureSay(c,'die');blood(c.x,1,c.z,14,dir);if(!byNPC)mono(c.role==='thrower'?'killThrower':'killPipe',{prio:true,once:false});return;}
-  if(c.type==='shambler'&&!byNPC)mono('killShambler',{prio:true});if(c.type==='listener'&&!byNPC)mono('killListener',{prio:true,once:false});if(!c.hidden)creatureSay(c,'die');blood(c.x,1,c.z,18,dir);say('','쓰러졌다… 다시 일어나진 않는다.');if(Math.random()<.35)dropPickup('junk',3+Math.floor(Math.random()*4),c.x+.3,c.z+.3);}
+  if(c.type==='shambler'&&!byNPC)mono('killShambler',{prio:true});if(c.type==='listener'&&!byNPC)mono('killListener',{prio:true,once:false});if(!c.hidden)creatureSay(c,'die');blood(c.x,1,c.z,18,dir);if(!byNPC)say('','쓰러졌다… 다시 일어나진 않는다.'); /* 11/7 사용자: 김수민이 처치했을 때만 */if(Math.random()<.35)dropPickup('junk',3+Math.floor(Math.random()*4),c.x+.3,c.z+.3);}
 
 /* ================= 칭호 · 누적 기록(11/6) — 판을 넘어 쌓임(localStorage f10_meta) ================= */
 const META_K='f10_meta';
