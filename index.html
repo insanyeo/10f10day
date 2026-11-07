@@ -419,7 +419,7 @@ body.touch #toasts{top:calc(64px + env(safe-area-inset-top,0px))!important}
     <div class="lface" id="lface"><img id="faceA" alt=""><img id="faceB" alt=""></div>
     <div class="ltag"><h3>열흘 안에, 1층으로.</h3><p>문밖에서 들리는 발소리. 더는 이웃이 아니다.<br>남은 시간은 열흘. 이 건물에서 나가야 한다.</p></div>
     <div class="lhint">ENTER 시작 · ↑↓ 선택</div>
-    <div class="lver"><span id="lplay"></span> · v0.9.21 · 2026.11.07</div>
+    <div class="lver"><span id="lplay"></span> · v0.9.22 · 2026.11.07</div>
     <div class="llogo"><div class="lnum"><span id="logoF">10F</span><span class="sl">/</span><span class="dy" id="logoD">10DAY</span></div><div class="proj">project.<b>Jitz</b></div></div>
     <nav class="lmenu" id="lmenu" aria-label="메인 메뉴">
       <button type="button" data-act="new" class="on">새 게임</button>
@@ -1909,7 +1909,7 @@ const TITLES=[
   {b:6,id:'drum',name:'드럼통 슬레이어',desc:'1층 보스 처치',k:'hb',n:1,ic:'drum',rim:'#c9a24a'},
   {b:7,id:'drum3',name:'드럼통 장인',desc:'1층 보스 3번 처치',k:'hb',n:3,ic:'drum3',rim:'#c9a24a'},
   {b:8,id:'survivor',name:'생존왕',desc:'처음으로 탈출',k:'esc',n:1,ic:'door',rim:'#d8d2c4'},
-  {b:9,id:'god',name:'갓',desc:'탈출 3번',k:'esc',n:3,ic:'crown',rim:'#f0d070'},
+  {b:21,id:'jukwon',name:'주권수호자',desc:'1층 비상벨 히든 엔딩으로 탈출',k:'esc_egg',n:1,ic:'door',rim:'#c42a22',secret:true}, /* 11/7 사용자: '갓' 대신 */
   {b:10,id:'clrEasy',name:'소녀감성',desc:'10층부터 1층까지 쉬움 난이도로만 탈출',k:'esc_easy',n:1,ic:'heart',rim:'#d88aa0'},
   {b:12,id:'clrHard',name:'생존마스터',desc:'10층부터 1층까지 어려움 난이도로만 탈출',k:'esc_hard',n:1,ic:'skull',rim:'#b3202a'},
   /* 11/6 숨은 칭호: 얻기 전엔 이름·조건 모두 ??? */
@@ -3893,7 +3893,7 @@ function ending(kind,why){
    $('endStat').innerHTML=`<dt>시각</dt><dd>${G.day}일차 ${fmtClock(G.min)}${kind==='escape'?tag(nw.t,escB):escB?' <small class="bestrec">최단 탈출 '+escB+'</small>':''}</dd><dt>도달</dt><dd>${G.floor}층${tag(nw.f,B&&B.floor!=null?B.floor+'층':null)}</dd><dt>처치</dt><dd>${G.kills}${tag(nw.k,B?B.kills:null)}</dd><dt>새총</dt><dd>${CFG.sling[P.tier].name}</dd><dt>쪽지</dt><dd>${nN} / ${nT}${tag(nw.n,B&&B.notes!=null?B.notes+' / '+nT:null)}</dd>`;}
   if(kind==='fail'&&FLOOR_SAVE){FLOOR_SAVE.min=Math.min(FLOOR_SAVE.min,CFG.deadlineMin-1440);if(typeof saveGame==='function')saveGame();} /* 11/6 감염: 그 층 처음 + 최소 하루 */
   $('endBtn').textContent=kind==='dead'?G.floor+'층 처음부터 다시':kind==='fail'?G.floor+'층 처음부터 다시 (하루 남김)':'10층 처음부터';
-  if(kind==='escape'&&typeof metaAdd==='function'){if((G.notesRead||[]).length>=Object.keys(NOTES).length)metaAdd('esc_notes');metaAdd('esc');if(G.run&&G.run.full&&G.run.d===OPT.diff)metaAdd('esc_'+OPT.diff); /* 11/6: 10층→1층 같은 난이도로만 */}
+  if(kind==='escape'&&typeof metaAdd==='function'){if(G.eggEnd)metaAdd('esc_egg');if((G.notesRead||[]).length>=Object.keys(NOTES).length)metaAdd('esc_notes');metaAdd('esc');if(G.run&&G.run.full&&G.run.d===OPT.diff)metaAdd('esc_'+OPT.diff); /* 11/6: 10층→1층 같은 난이도로만 */}
   $('endCred').hidden=kind!=='escape';if(kind==='escape'){const st=G.min;setTimeout(()=>{if(G.state==='end'&&!$('endP').hidden&&$('credP').hidden)openCredits();},15000);}
   if(kind!=='dead'&&kind!=='fail'){FLOOR_SAVE=initialSave();G.floor=10;try{localStorage.removeItem('f10_save');localStorage.removeItem('f10_best');}catch(e){}}
   updateLogo();
