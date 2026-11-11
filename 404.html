@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>10F / 10DAY — 이사했어요</title>
+<meta name="theme-color" content="#000000">
+<style>
+html,body{margin:0;height:100%;background:#0a0707;color:#ece4dc;font:16px/1.6 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;box-sizing:border-box;text-align:center}
+h1{font:400 56px/1 monospace;letter-spacing:2px;margin:0 0 6px}h1 span{color:#d0262c}
+.sub{color:#a39890;margin:0 0 28px;letter-spacing:3px;font-family:monospace}
+p{margin:6px 0;max-width:460px}
+a.btn{display:inline-block;margin-top:22px;padding:12px 22px;background:#c42a22;color:#fff;text-decoration:none;border-radius:10px;font-weight:700}
+small{display:block;margin-top:18px;color:#8a7f78;max-width:460px}
+</style>
+</head>
+<body>
+<main>
+  <h1>10F <span>/ 10DAY</span></h1>
+  <p class="sub">project.Jitz</p>
+  <p><b>게임 주소가 바뀌었어요.</b></p>
+  <p id="msg">진행 상황을 챙겨서 새 주소로 옮기는 중…</p>
+  <a class="btn" id="go" href="https://project-jitz.github.io/10f10day/">새 주소로 가기</a>
+  <small>새 주소: project-jitz.github.io/10f10day<br>폰 홈 화면에 추가해 뒀다면, 새 주소에서 한 번 더 '홈 화면에 추가' 해 주세요.</small>
+</main>
+<script>
+(function(){
+  var NEW='https://project-jitz.github.io/10f10day/';
+  var KEYS=['f10_save','f10_best','f10_meta','f10_opt','f10_mono','f10_rankq'];
+  var url=NEW;
+  try{
+    var o={},n=0;
+    KEYS.forEach(function(k){var v=localStorage.getItem(k);if(v!=null){o[k]=v;n++;}});
+    if(n){
+      var code='JITZ1:'+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:o}))));
+      url=NEW+'#jitz='+encodeURIComponent(code);
+      document.getElementById('msg').textContent='진행 상황을 챙겼어요. 새 주소로 옮겨 가요…';
+    }else{
+      document.getElementById('msg').textContent='새 주소로 옮겨 가요…';
+    }
+  }catch(e){}
+  document.getElementById('go').href=url;
+  setTimeout(function(){location.replace(url);},1500);
+})();
+</script>
+</body>
+</html>
